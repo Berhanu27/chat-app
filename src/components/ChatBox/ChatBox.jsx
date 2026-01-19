@@ -2,7 +2,7 @@ import './ChatBox.css'
 import assets from '../../assets/assets'
 import { useContext, useEffect, useState, useRef } from 'react'
 import { AppContext } from '../../context/AppContext'
-import { arrayUnion, doc, getDoc, onSnapshot, setDoc, updateDoc } from 'firebase/firestore'
+import { arrayUnion, doc, getDoc, onSnapshot, setDoc, updateDoc, serverTimestamp } from 'firebase/firestore'
 import { db } from '../../config/Firebase'
 import { toast } from 'react-toastify'
 import upload from '../../lib/upload'
@@ -19,7 +19,7 @@ const ChatBox = () => {
           messages: arrayUnion({
             sId: userData.id,
             text: input,
-            createdAt: new Date()
+            createdAt: serverTimestamp()
           })
         }, { merge: true })
         console.log("Message sent successfully"); // Debug log
@@ -33,7 +33,7 @@ const ChatBox = () => {
             const chatIndex = userChatData.chatData.findIndex((c) => c.messagesId === messagesId)
             if (chatIndex !== -1) {
               userChatData.chatData[chatIndex].lastMessage = input.slice(0, 30);
-              userChatData.chatData[chatIndex].updatedAt = new Date();
+              userChatData.chatData[chatIndex].updatedAt = Date.now();
               if (userChatData.chatData[chatIndex].rId === userData.id) {
                 userChatData.chatData[chatIndex].messageSeen = false;
               }
@@ -62,7 +62,7 @@ const ChatBox = () => {
           messages: arrayUnion({
             sId: userData.id,
             image: fileUrl,
-            createdAt: new Date()
+            createdAt: serverTimestamp()
           })
         }, { merge: true })
           const userIDs = [chatUser.rId, userData.id];
@@ -74,7 +74,7 @@ const ChatBox = () => {
             const chatIndex = userChatData.chatData.findIndex((c) => c.messagesId === messagesId)
             if (chatIndex !== -1) {
               userChatData.chatData[chatIndex].lastMessage ="Image";
-              userChatData.chatData[chatIndex].updatedAt = new Date();
+              userChatData.chatData[chatIndex].updatedAt = Date.now();
               if (userChatData.chatData[chatIndex].rId === userData.id) {
                 userChatData.chatData[chatIndex].messageSeen = false;
               }
