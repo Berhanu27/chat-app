@@ -1,0 +1,121 @@
+.chat {
+    min-height: 100vh;
+    background: linear-gradient(#596AFF, #383699);
+    display: grid;
+    place-items: center;
+}
+
+.chat-container {
+    width: 90%;
+    height: 85vh;
+    max-width: 1200px;
+    background: #fff;
+    display: grid;
+    grid-template-columns: 1fr 2fr 1fr;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+}
+
+.loading{
+    font-size: 30px;
+    color: white;
+}
+
+/* Responsive Styles for Chat Page */
+@media (max-width: 1024px) {
+  .chat-container {
+    width: 100vw;
+    height: 100vh;
+  }
+}
+
+@media (max-width: 768px) {
+  .chat {
+    padding: 0;
+  }
+  
+  .chat-container {
+    width: 100vw;
+    height: 100vh;
+    border-radius: 0;
+    grid-template-columns: 1fr;
+    position: relative;
+  }
+  
+  /* Hide right sidebar on tablet */
+  .chat-container > :last-child {
+    display: none;
+  }
+  
+  /* Show left sidebar by default, hide when chat is visible */
+  .chat-container > :first-child {
+    display: block;
+  }
+  
+  .chat-container > :nth-child(2) {
+    display: none;
+  }
+  
+  /* When chat is visible, hide left sidebar and show chat */
+  .chat-container.chat-active > :first-child {
+    display: none;
+  }
+  
+  .chat-container.chat-active > :nth-child(2) {
+    display: block;
+  }
+  
+  .loading {
+    font-size: 24px;
+  }
+}
+
+@media (max-width: 480px) {
+  .chat {
+    padding: 0;
+  }
+  
+  .chat-container {
+    width: 100vw;
+    height: 100vh;
+    border-radius: 0;
+    grid-template-columns: 1fr;
+    position: relative;
+  }
+  
+  /* Hide right sidebar on mobile */
+  .chat-container > :last-child {
+    display: none;
+  }
+  
+  /* Show left sidebar by default, hide when chat is visible */
+  .chat-container > :first-child {
+    display: block;
+  }
+  
+  .chat-container > :nth-child(2) {
+    display: none;
+  }
+  
+  /* When chat is visible, hide left sidebar and show chat */
+  .chat-container.chat-active > :first-child {
+    display: none;
+  }
+  
+  .chat-container.chat-active > :nth-child(2) {
+    display: block;
+  }
+  
+  .loading {
+    font-size: 20px;
+  }
+}
+
+@media (max-width: 320px) {
+  .chat-container {
+    height: 100vh;
+    border-radius: 0;
+    grid-template-columns: 1fr;
+  }
+}

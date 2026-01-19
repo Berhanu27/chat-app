@@ -1,0 +1,254 @@
+.rs {
+  background: #001030;
+  color: white;
+  position: relative;
+  height: 100%;
+  overflow: scroll;
+  border-top-right-radius: 10px;
+  border-bottom-right-radius: 10px;
+}
+.rs-profile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px 15px 16px 15px;
+  border-bottom: 1px solid #ffffff30;
+}
+
+.rs-profile img {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #667eea;
+  margin-bottom: 15px;
+}
+
+.rs-profile h3 {
+  font-size: 18px;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0 0 8px 0;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.rs-profile p {
+  font-size: 14px;
+  color: #cccccc;
+  margin: 0;
+  text-align: center;
+}
+.rs hr{
+  border-color: #ffffff50;
+  margin: 25px 0px;
+}
+
+.rs-media {
+  padding: 0px 20px;
+  font-size: 13px;
+  color: #ffffff;
+}
+
+.rs-media p {
+  color: #ffffff;
+  margin-bottom: 8px;
+}
+
+.rs-media div{
+  max-height: 180px;
+  overflow-y:scroll;
+  display: grid;
+  grid-template-columns: 1fr  1fr 1fr;
+  gap: 5px;
+  margin-top: 8px;
+}
+
+.rs-media div img{
+  width: 60px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.rs-profile .dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+.rs button{
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translatex(-50%);
+  background-color: #077eff;
+  color: white;
+  border: none;
+  font-size: 12px;
+  font-weight: 300;
+  padding: 8px 16px;
+  border-radius: 20px;
+  cursor: pointer;
+  width: auto;
+  height: 36px;
+  min-width: 70px;
+  max-width: 90px;
+}
+
+.rs-button {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: #077eff;
+  color: white;
+  border: none;
+  font-size: 14px;
+  font-weight: 400;
+  padding: 10px 20px;
+  border-radius: 20px;
+  cursor: pointer;
+  width: auto;
+  height: 40px;
+  min-width: 80px;
+  max-width: 100px;
+}
+/* Large screen styles */
+@media (min-width: 1200px) {
+  .rs-profile img {
+    width: 140px;
+    height: 140px;
+    margin-bottom: 18px;
+  }
+  
+  .rs-profile h3 {
+    font-size: 20px;
+    margin: 0 0 10px 0;
+  }
+  
+  .rs-profile p {
+    font-size: 15px;
+  }
+}
+
+/* Responsive Styles for RightSidebar */
+@media (max-width: 768px) {
+  .rs {
+    height: 70vh;
+  }
+  
+  .rs-profile {
+    padding-bottom: 12px;
+  }
+  
+  .rs-profile img {
+    width: 80px;
+    height: 80px;
+    margin-bottom: 10px;
+  }
+  
+  .rs-profile h3 {
+    font-size: 15px;
+  }
+  
+  .rs-profile p {
+    font-size: 12px;
+  }
+  
+  .rs hr {
+    margin: 20px 0;
+  }
+  
+  .rs-media {
+    font-size: 12px;
+  }
+  
+  .rs-media div {
+    max-height: 150px;
+    gap: 4px;
+    margin-top: 6px;
+  }
+  
+  .rs-media div img {
+    width: 50px;
+  }
+  
+  .rs button {
+    font-size: 11px;
+    padding: 8px 20px;
+    bottom: 15px;
+    max-width: 80px;
+  }
+}
+
+@media (max-width: 480px) {
+  .rs {
+    height: 65vh;
+  }
+  
+  .rs-profile {
+    padding-bottom: 10px;
+  }
+  
+  .rs-profile img {
+    width: 70px;
+    height: 70px;
+    margin-bottom: 8px;
+    border-width: 2px;
+  }
+  
+  .rs-profile h3 {
+    font-size: 14px;
+  }
+  
+  .rs-profile p {
+    font-size: 11px;
+  }
+  
+  .rs hr {
+    margin: 15px 0;
+  }
+  
+  .rs-media {
+    font-size: 11px;
+  }
+  
+  .rs-media div {
+    max-height: 120px;
+    gap: 3px;
+    margin-top: 5px;
+    grid-template-columns: 1fr 1fr;
+  }
+  
+  .rs-media div img {
+    width: 45px;
+    border-radius: 3px;
+  }
+  
+  .rs button {
+    font-size: 10px;
+    padding: 6px 40px;
+    bottom: 10px;
+    border-radius: 15px;
+  }
+}
+
+@media (max-width: 320px) {
+  .rs-profile img {
+    width: 60px;
+    height: 60px;
+  }
+  
+  .rs-profile h3 {
+    font-size: 13px;
+  }
+  
+  .rs-media div img {
+    width: 40px;
+  }
+  
+  .rs button {
+    padding: 5px 30px;
+  }
+}

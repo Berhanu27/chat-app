@@ -1,0 +1,39 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&family=Prata&display=swap');
+*{
+  padding: 0;
+  margin: 0;  
+  box-sizing: border-box;
+  font-family: 'Outfit', poppins;
+}
+
+html, body, #root {
+  height: 100%;
+}
+
+::-webkit-scrollbar{
+  display: none;
+}
+
+.dot{
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #31d24c;
+  display: inline-block;
+}
+.hidden{
+  display: none;
+}
+
+/* Global Responsive Styles */
+@media (max-width: 768px) {
+  html {
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  html {
+    font-size: 12px;
+  }
+}
