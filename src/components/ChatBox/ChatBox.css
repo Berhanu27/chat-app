@@ -6,6 +6,7 @@
   overflow: hidden;
   border-left: 1px solid #dee2e6;
   border-right: 1px solid #dee2e6;
+  position: relative;
 }
 
 .chat-user .back-btn {
@@ -158,6 +159,10 @@
   gap: 10px;
   padding: 12px 15px;
   border-top: 1px solid #e5e5e5;
+  background: #fff;
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
 }
 
 .chat-input input[type="text"] {
@@ -305,6 +310,7 @@
   .chat-msg {
     padding: 8px;
     gap: 8px;
+    padding-bottom: 80px;
   }
   
   .s-msg {
@@ -369,13 +375,22 @@
   }
   
   .chat-input {
-    padding: 6px 8px;
+    padding: 8px;
     gap: 6px;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: #fff;
+    border-top: 2px solid #e5e5e5;
+    z-index: 100;
   }
   
   .chat-input input[type="text"] {
     font-size: 11px;
-    padding: 4px 0;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 20px;
   }
   
   .chat-input label img {
