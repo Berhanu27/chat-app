@@ -233,7 +233,14 @@ const LeftSidebar = () => {
                             <hr />
                             <p onClick={() => setShowMyProfile(true)}>View profile</p>
                             <hr />
-                            <p onClick={() => setShowCreateGroup(true)} style={{background: '#4CAF50', color: 'white', borderRadius: '5px', padding: '8px', fontWeight: 'bold'}}>
+                            <p onClick={() => setShowCreateGroup(true)} style={{
+                                background: '#4CAF50',
+                                color: 'white',
+                                borderRadius: '5px',
+                                padding: '8px',
+                                fontWeight: 'bold',
+                                textAlign: 'center'
+                            }}>
                                 👥 Create Group
                             </p>
                             <hr />
@@ -290,6 +297,41 @@ const LeftSidebar = () => {
                                         navigate('/profile');
                                     }}>
                                         Edit Profile
+                                    </button>
+                                    <button className="create-group-profile-btn" onClick={() => {
+                                        setShowMyProfile(false);
+                                        setShowCreateGroup(true);
+                                    }} style={{
+                                        background: 'linear-gradient(135deg, #4CAF50 0%, #45a049 100%)',
+                                        color: 'white',
+                                        border: 'none',
+                                        padding: '10px 20px',
+                                        borderRadius: '25px',
+                                        fontSize: '14px',
+                                        fontWeight: '600',
+                                        cursor: 'pointer',
+                                        marginTop: '10px',
+                                        width: '100%'
+                                    }}>
+                                        👥 Create Group
+                                    </button>
+                                    <button onClick={() => {
+                                        // Test notification sound
+                                        import('../../utils/sound').then(({ playNotificationSound }) => {
+                                            playNotificationSound();
+                                        });
+                                    }} style={{
+                                        background: '#007bff',
+                                        color: 'white',
+                                        border: 'none',
+                                        padding: '8px 16px',
+                                        borderRadius: '20px',
+                                        fontSize: '12px',
+                                        cursor: 'pointer',
+                                        marginTop: '5px',
+                                        width: '100%'
+                                    }}>
+                                        🔊 Test Sound
                                     </button>
                                 </div>
                             </div>
