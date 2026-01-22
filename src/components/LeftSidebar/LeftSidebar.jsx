@@ -30,6 +30,16 @@ const LeftSidebar = () => {
     const inputHandler = async (e) => {
         try {
             const input = e.target.value;
+            if (input.toLowerCase() === 'group') {
+                setShowSearch(true);
+                setUser({
+                    name: '👥 Create New Group',
+                    avatar: assets.logo_icon,
+                    isCreateGroup: true
+                });
+                return;
+            }
+            
             if (input) {
                 setShowSearch(true)
 
@@ -344,36 +354,71 @@ const LeftSidebar = () => {
                 )}
                 <div className="ls-search">
                     <img src={assets.search_icon} alt="Search" style={{display: 'block', minWidth: '18px'}} />
-                    <input ref={inputRef} onChange={inputHandler} type="text" placeholder='Search here..' />
-                </div>
-                
-                {/* Simple Create Group Button */}
-                <div style={{padding: '10px 5px'}}>
-                    <button 
-                        onClick={() => setShowCreateGroup(true)}
-                        style={{
-                            width: '100%',
-                            background: 'linear-gradient(135deg, #4CAF50 0%, #45a049 100%)',
-                            color: 'white',
-                            border: 'none',
-                            padding: '10px 15px',
-                            borderRadius: '25px',
-                            fontSize: '14px',
-                            fontWeight: '600',
-                            cursor: 'pointer',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            gap: '8px'
-                        }}
-                    >
-                        <span>👥</span>
-                        Create Group
-                    </button>
+                    <input ref={inputRef} onChange={inputHandler} type="text" placeholder='Search users or type "group" to create group..' />
                 </div>
                 <div className="ls-list">
                     {showSearch && user ? (
-                        <div onClick={addChat} className="friends add-user">
+                        <div onClick={async () => {
+                            if (user.isCreateGroup) {
+                                setShowCreateGroup(true);
+                                setShowSearch(false);
+                                setUser(null);
+                                if (inputRef.current) {
+                                    inputRef.current.value = '';
+                                }
+                            } else {
+                                // Original addChat logic for regular users
+                                const messagesRef = collection(db, 'messages');
+                                const chatsRef = collection(db, 'chats');
+                                try {
+                                    const newMessageRef = doc(messagesRef);
+                                    await setDoc(newMessageRef, {
+                                        createAt: serverTimestamp(),
+                                        messages: []
+                                    })
+                                    
+                                    await updateDoc(doc(chatsRef, user.id), {
+                                        chatData: arrayUnion({
+                                            messagesId: newMessageRef.id,
+                                            lastMessage: "",
+                                            rId: userData.id,
+                                            updateAt: Date.now(),
+                                            messageSeen: true
+                                        })
+                                    })
+                                    
+                                    await updateDoc(doc(chatsRef, userData.id), {
+                                        chatData: arrayUnion({
+                                            messagesId: newMessageRef.id,
+                                            lastMessage: "",
+                                            rId: user.id,
+                                            updateAt: Date.now(),
+                                            messageSeen: true
+                                        })
+                                    })
+                                    const uSnap=await getDoc(doc(db,'users',user.id))
+                                    const uData=uSnap.data();
+                                    setChat({
+                                        messagesId: newMessageRef.id,
+                                        lastMessage: "",
+                                        rId: uData.id,
+                                        updateAt: Date.now(),
+                                        messageSeen: true,
+                                        userData: uData
+                                    })
+                                    setShowSearch(false)
+                                    setChatVisible(true)
+                                    
+                                    setUser(null);
+                                    if (inputRef.current) {
+                                        inputRef.current.value = '';
+                                    }
+                                } catch (error) {
+                                    toast.error(error.message)
+                                    console.error(error);
+                                }
+                            }
+                        }} className="friends add-user">
                             <img src={user.avatar} alt="" />
                             <p>{user.name}</p>
                         </div>
@@ -393,6 +438,13 @@ const LeftSidebar = () => {
                                 )}
                             </div>
                         ))
+                    )}
+                    
+                    {/* Simple Create Group Option */}
+                    <div onClick={() => setShowCreateGroup(true)} className="friends add-user" style={{background: 'rgba(76, 175, 80, 0.1)', border: '2px dashed #4CAF50'}}>
+                        <img src={assets.logo_icon} alt="" />
+                        <p style={{color: '#4CAF50', fontWeight: 'bold'}}>👥 Create New Group</p>
+                    </div>
                     )}
                 </div>
             </div>
