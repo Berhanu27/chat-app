@@ -133,58 +133,7 @@ const LeftSidebar = () => {
             toast.error('Failed to create group');
         }
     };
-        const messagesRef = collection(db, 'messages');
-        const chatsRef = collection(db, 'chats');
-        try {
-            const newMessageRef = doc(messagesRef);
-            await setDoc(newMessageRef, {
-                createAt: serverTimestamp(),
-                messages: []
-            })
-            
-            await updateDoc(doc(chatsRef, user.id), {
-                chatData: arrayUnion({
-                    messagesId: newMessageRef.id,
-                    lastMessage: "",
-                    rId: userData.id,
-                    updateAt: Date.now(),
-                    messageSeen: true
-                })
-            })
-            
-            await updateDoc(doc(chatsRef, userData.id), {
-                chatData: arrayUnion({
-                    messagesId: newMessageRef.id,
-                    lastMessage: "",
-                    rId: user.id,
-                    updateAt: Date.now(),
-                    messageSeen: true
-                })
-            })
-            const uSnap=await getDoc(doc(db,'users',user.id))
-            const uData=uSnap.data();
-            setChat({
-                messagesId: newMessageRef.id,
-                lastMessage: "",
-                rId: uData.id,
-                updateAt: Date.now(),
-                messageSeen: true,
-                userData: uData
-            })
-            setShowSearch(false)
-            setChatVisible(true)
-
-            
-            
-            setUser(null);
-            if (inputRef.current) {
-                inputRef.current.value = '';
-            }
-        } catch (error) {
-            toast.error(error.message)
-            console.error(error);
-        }
-    }
+    
     const setChat = async (item) => {
         console.log("Setting chat:", item); // Debug log
         console.log("MessagesId being set:", item.messagesId); // Debug the messagesId
