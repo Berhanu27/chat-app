@@ -22,6 +22,7 @@ const downloadMedia = (url, filename) => {
 const ChatBox = () => {
   const { userData, messagesId, chatUser, messages, setMessages, setChatVisible } = useContext(AppContext)
   const[input, setInput]=useState("");
+  const[showContactInfo, setShowContactInfo]=useState(false);
   const messagesEndRef = useRef(null);
   const prevMessagesLength = useRef(0);
   
@@ -269,11 +270,59 @@ const ChatBox = () => {
     <div className='chat-box'>
       <div className="chat-user">
         <img src={assets.arrow_icon} alt="Back" className='back-btn' onClick={() => setChatVisible(false)} />
-        <img src={chatUser.userData.avatar} alt="" />
-        <p>{chatUser.userData.name} {Date.now()-chatUser.userData.lastSeen<=70000 ? <img className='dot' src={assets.green_dot} alt="" />: null}</p>
+        <img src={chatUser.userData.avatar} alt="" onClick={() => setShowContactInfo(true)} style={{cursor: 'pointer'}} />
+        <p onClick={() => setShowContactInfo(true)} style={{cursor: 'pointer'}}>{chatUser.userData.name} {Date.now()-chatUser.userData.lastSeen<=70000 ? <img className='dot' src={assets.green_dot} alt="" />: null}</p>
         <img src={assets.help_icon} alt="" className='help' />
-       
       </div>
+
+      {/* Contact Info Modal */}
+      {showContactInfo && (
+        <div className="contact-info-overlay" onClick={() => setShowContactInfo(false)}>
+          <div className="contact-info-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="contact-info-header">
+              <h3>Contact Info</h3>
+              <button className="close-btn" onClick={() => setShowContactInfo(false)}>×</button>
+            </div>
+            <div className="contact-info-content">
+              <div className="contact-avatar">
+                <img src={chatUser.userData.avatar} alt={chatUser.userData.name} />
+                <div className="online-status">
+                  {Date.now()-chatUser.userData.lastSeen<=70000 ? (
+                    <span className="status online">
+                      <img src={assets.green_dot} alt="" />
+                      Online
+                    </span>
+                  ) : (
+                    <span className="status offline">
+                      Last seen {new Date(chatUser.userData.lastSeen).toLocaleString()}
+                    </span>
+                  )}
+                </div>
+              </div>
+              <div className="contact-details">
+                <div className="detail-item">
+                  <label>Name:</label>
+                  <span>{chatUser.userData.name}</span>
+                </div>
+                <div className="detail-item">
+                  <label>Username:</label>
+                  <span>@{chatUser.userData.username}</span>
+                </div>
+                {chatUser.userData.bio && (
+                  <div className="detail-item">
+                    <label>Bio:</label>
+                    <span>{chatUser.userData.bio}</span>
+                  </div>
+                )}
+                <div className="detail-item">
+                  <label>Member since:</label>
+                  <span>{new Date(chatUser.userData.id).toLocaleDateString()}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="chat-msg">
         {messages && messages.length > 0 ? (

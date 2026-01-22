@@ -48,6 +48,16 @@
   align-items: center;
   gap: 6px;
   margin: 0;
+  transition: color 0.2s;
+}
+
+.chat-user p:hover {
+  color: #007bff;
+}
+
+.chat-user > img:nth-child(2):hover {
+  transform: scale(1.05);
+  transition: transform 0.2s;
 }
 
 .chat-user p img {
@@ -254,6 +264,137 @@
   font-weight: 500;
   color: #383838;
 }
+
+/* Contact Info Modal Styles */
+.contact-info-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.contact-info-modal {
+  background: white;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 400px;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.contact-info-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.contact-info-header h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #666;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background 0.2s;
+}
+
+.close-btn:hover {
+  background: #f0f0f0;
+}
+
+.contact-info-content {
+  padding: 20px;
+}
+
+.contact-avatar {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.contact-avatar img {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #007bff;
+  margin-bottom: 10px;
+}
+
+.online-status {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}
+
+.status {
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.status.online {
+  color: #4caf50;
+  font-weight: 500;
+}
+
+.status.offline {
+  color: #666;
+}
+
+.status img {
+  width: 8px;
+  height: 8px;
+}
+
+.contact-details {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.detail-item label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.detail-item span {
+  font-size: 14px;
+  color: #333;
+  word-wrap: break-word;
+}
 @media (max-width:900px) {
   .chat-box{
     width: 100%;
@@ -370,6 +511,29 @@
   .chat-welcome p {
     font-size: 18px;
   }
+  
+  /* Contact Info Modal - Tablet */
+  .contact-info-modal {
+    width: 85%;
+    max-width: 350px;
+  }
+  
+  .contact-info-header {
+    padding: 15px;
+  }
+  
+  .contact-info-header h3 {
+    font-size: 16px;
+  }
+  
+  .contact-info-content {
+    padding: 15px;
+  }
+  
+  .contact-avatar img {
+    width: 70px;
+    height: 70px;
+  }
 }
 
 @media (max-width: 480px) {
@@ -455,6 +619,48 @@
   
   .chat-welcome p {
     font-size: 14px;
+  }
+  
+  /* Contact Info Modal - Mobile */
+  .contact-info-modal {
+    width: 95%;
+    max-width: 320px;
+    margin: 10px;
+  }
+  
+  .contact-info-header {
+    padding: 12px;
+  }
+  
+  .contact-info-header h3 {
+    font-size: 14px;
+  }
+  
+  .close-btn {
+    font-size: 20px;
+    width: 25px;
+    height: 25px;
+  }
+  
+  .contact-info-content {
+    padding: 12px;
+  }
+  
+  .contact-avatar img {
+    width: 60px;
+    height: 60px;
+  }
+  
+  .status {
+    font-size: 12px;
+  }
+  
+  .detail-item label {
+    font-size: 10px;
+  }
+  
+  .detail-item span {
+    font-size: 12px;
   }
 }
 @media (max-width: 480px) {
