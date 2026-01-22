@@ -353,7 +353,12 @@ const LeftSidebar = () => {
                             <p>{user.name}</p>
                         </div>
                     ) : (
-                    chatData && chatData.map((item, index) => (
+                    chatData && chatData.map((item, index) => {
+                        // Debug log to help identify the problematic item
+                        if (!item.userData && !item.isGroup) {
+                            console.warn('Chat item missing userData:', item);
+                        }
+                        return (
                             <div onClick={()=>setChat(item)} className={`friends ${chatUser && chatUser.messagesId === item.messagesId ? 'active' : ''} ${!item.messageSeen ? 'unread' : ''}`} key={index}>
                                 <img src={item.isGroup ? (item.groupData?.avatar || assets.logo_icon) : (item.userData?.avatar || assets.avatar_icon)} alt="" />
                                 <div>
@@ -367,7 +372,8 @@ const LeftSidebar = () => {
                                     <div className="group-indicator">👥</div>
                                 )}
                             </div>
-                        ))
+                        );
+                    })
                     )}
                     
                     {/* Simple Create Group Option */}
