@@ -30,16 +30,6 @@ const LeftSidebar = () => {
     const inputHandler = async (e) => {
         try {
             const input = e.target.value;
-            if (input.toLowerCase() === 'group') {
-                setShowSearch(true);
-                setUser({
-                    name: '👥 Create New Group',
-                    avatar: assets.logo_icon,
-                    isCreateGroup: true
-                });
-                return;
-            }
-            
             if (input) {
                 setShowSearch(true)
 
@@ -182,17 +172,6 @@ const LeftSidebar = () => {
                             <hr />
                             <p onClick={() => setShowMyProfile(true)}>View profile</p>
                             <hr />
-                            <p onClick={() => setShowCreateGroup(true)} style={{
-                                background: '#4CAF50',
-                                color: 'white',
-                                borderRadius: '5px',
-                                padding: '8px',
-                                fontWeight: 'bold',
-                                textAlign: 'center'
-                            }}>
-                                👥 Create Group
-                            </p>
-                            <hr />
                             <p onClick={handleLogout}>Logout</p>
                         </div>
                     </div>
@@ -246,41 +225,6 @@ const LeftSidebar = () => {
                                         navigate('/profile');
                                     }}>
                                         Edit Profile
-                                    </button>
-                                    <button className="create-group-profile-btn" onClick={() => {
-                                        setShowMyProfile(false);
-                                        setShowCreateGroup(true);
-                                    }} style={{
-                                        background: 'linear-gradient(135deg, #4CAF50 0%, #45a049 100%)',
-                                        color: 'white',
-                                        border: 'none',
-                                        padding: '10px 20px',
-                                        borderRadius: '25px',
-                                        fontSize: '14px',
-                                        fontWeight: '600',
-                                        cursor: 'pointer',
-                                        marginTop: '10px',
-                                        width: '100%'
-                                    }}>
-                                        👥 Create Group
-                                    </button>
-                                    <button onClick={() => {
-                                        // Test notification sound
-                                        import('../../utils/sound').then(({ playNotificationSound }) => {
-                                            playNotificationSound();
-                                        });
-                                    }} style={{
-                                        background: '#007bff',
-                                        color: 'white',
-                                        border: 'none',
-                                        padding: '8px 16px',
-                                        borderRadius: '20px',
-                                        fontSize: '12px',
-                                        cursor: 'pointer',
-                                        marginTop: '5px',
-                                        width: '100%'
-                                    }}>
-                                        🔊 Test Sound
                                     </button>
                                 </div>
                             </div>
@@ -349,74 +293,59 @@ const LeftSidebar = () => {
                 <div className="ls-list">
                     {showSearch && user ? (
                         <div onClick={async () => {
-                            if (user.isCreateGroup) {
-                                setShowCreateGroup(true);
-                                setShowSearch(false);
+                            // Add user to chat
+                            const messagesRef = collection(db, 'messages');
+                            const chatsRef = collection(db, 'chats');
+                            try {
+                                const newMessageRef = doc(messagesRef);
+                                await setDoc(newMessageRef, {
+                                    createAt: serverTimestamp(),
+                                    messages: []
+                                })
+                                
+                                await updateDoc(doc(chatsRef, user.id), {
+                                    chatData: arrayUnion({
+                                        messagesId: newMessageRef.id,
+                                        lastMessage: "",
+                                        rId: userData.id,
+                                        updateAt: Date.now(),
+                                        messageSeen: true
+                                    })
+                                })
+                                
+                                await updateDoc(doc(chatsRef, userData.id), {
+                                    chatData: arrayUnion({
+                                        messagesId: newMessageRef.id,
+                                        lastMessage: "",
+                                        rId: user.id,
+                                        updateAt: Date.now(),
+                                        messageSeen: true
+                                    })
+                                })
+                                const uSnap=await getDoc(doc(db,'users',user.id))
+                                const uData=uSnap.data();
+                                setChat({
+                                    messagesId: newMessageRef.id,
+                                    lastMessage: "",
+                                    rId: uData.id,
+                                    updateAt: Date.now(),
+                                    messageSeen: true,
+                                    userData: uData
+                                })
+                                setShowSearch(false)
+                                setChatVisible(true)
+                                
                                 setUser(null);
                                 if (inputRef.current) {
                                     inputRef.current.value = '';
                                 }
-                            } else {
-                                // Original addChat logic for regular users
-                                const messagesRef = collection(db, 'messages');
-                                const chatsRef = collection(db, 'chats');
-                                try {
-                                    const newMessageRef = doc(messagesRef);
-                                    await setDoc(newMessageRef, {
-                                        createAt: serverTimestamp(),
-                                        messages: []
-                                    })
-                                    
-                                    await updateDoc(doc(chatsRef, user.id), {
-                                        chatData: arrayUnion({
-                                            messagesId: newMessageRef.id,
-                                            lastMessage: "",
-                                            rId: userData.id,
-                                            updateAt: Date.now(),
-                                            messageSeen: true
-                                        })
-                                    })
-                                    
-                                    await updateDoc(doc(chatsRef, userData.id), {
-                                        chatData: arrayUnion({
-                                            messagesId: newMessageRef.id,
-                                            lastMessage: "",
-                                            rId: user.id,
-                                            updateAt: Date.now(),
-                                            messageSeen: true
-                                        })
-                                    })
-                                    const uSnap=await getDoc(doc(db,'users',user.id))
-                                    const uData=uSnap.data();
-                                    setChat({
-                                        messagesId: newMessageRef.id,
-                                        lastMessage: "",
-                                        rId: uData.id,
-                                        updateAt: Date.now(),
-                                        messageSeen: true,
-                                        userData: uData
-                                    })
-                                    setShowSearch(false)
-                                    setChatVisible(true)
-                                    
-                                    setUser(null);
-                                    if (inputRef.current) {
-                                        inputRef.current.value = '';
-                                    }
-                                } catch (error) {
-                                    toast.error(error.message)
-                                    console.error(error);
-                                }
+                            } catch (error) {
+                                toast.error(error.message)
+                                console.error(error);
                             }
-                        }} className={`friends add-user ${user.isCreateGroup ? 'create-group-option' : ''}`} 
-                        style={user.isCreateGroup ? {
-                            background: 'linear-gradient(135deg, #4CAF50 0%, #45a049 100%)',
-                            color: 'white',
-                            border: '2px solid #4CAF50',
-                            fontWeight: 'bold'
-                        } : {}}>
+                        }} className="friends add-user">
                             <img src={user.avatar} alt="" />
-                            <p style={user.isCreateGroup ? {color: 'white', fontWeight: 'bold'} : {}}>{user.name}</p>
+                            <p>{user.name}</p>
                         </div>
                     ) : (
                     chatData && chatData.map((item, index) => (
