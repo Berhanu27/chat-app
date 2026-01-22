@@ -192,7 +192,7 @@ const LeftSidebar = () => {
                             </div>
                             <div className="profile-info-content">
                                 <div className="profile-avatar">
-                                    <img src={userData.avatar} alt={userData.name} />
+                                    <img src={userData?.avatar || assets.avatar_icon} alt={userData?.name || 'User'} />
                                     <div className="online-status">
                                         <span className="status online">
                                             <img src={assets.green_dot} alt="" />
@@ -349,7 +349,7 @@ const LeftSidebar = () => {
                                 console.error(error);
                             }
                         }} className="friends add-user">
-                            <img src={user.avatar} alt="" />
+                            <img src={user?.avatar || assets.avatar_icon} alt="" />
                             <p>{user.name}</p>
                         </div>
                     ) : (

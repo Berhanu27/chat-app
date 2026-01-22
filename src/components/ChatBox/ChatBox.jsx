@@ -209,7 +209,7 @@ const ChatBox = () => {
         if (chatUser) {
           const messageText = latestMessage.text || 'Sent an image';
           const senderName = chatUser.isGroup ? chatUser.groupData?.name : chatUser.userData?.name;
-          const senderAvatar = chatUser.isGroup ? chatUser.groupData?.avatar : chatUser.userData?.avatar;
+          const senderAvatar = chatUser.isGroup ? (chatUser.groupData?.avatar || assets.logo_icon) : (chatUser.userData?.avatar || assets.avatar_icon);
           showBrowserNotification(
             `New message from ${senderName}`,
             messageText,
@@ -272,7 +272,7 @@ const ChatBox = () => {
     <div className='chat-box'>
       <div className="chat-user">
         <img src={assets.arrow_icon} alt="Back" className='back-btn' onClick={() => setChatVisible(false)} />
-        <img src={chatUser.isGroup ? chatUser.groupData?.avatar : chatUser.userData?.avatar} alt="" onClick={() => setShowContactInfo(true)} style={{cursor: 'pointer'}} />
+        <img src={chatUser.isGroup ? (chatUser.groupData?.avatar || assets.logo_icon) : (chatUser.userData?.avatar || assets.avatar_icon)} alt="" onClick={() => setShowContactInfo(true)} style={{cursor: 'pointer'}} />
         <p onClick={() => setShowContactInfo(true)} style={{cursor: 'pointer'}}>
           {chatUser.isGroup ? chatUser.groupData?.name : chatUser.userData?.name} 
           {!chatUser.isGroup && chatUser.userData && Date.now()-chatUser.userData.lastSeen<=70000 ? <img className='dot' src={assets.green_dot} alt="" />: null}
@@ -290,7 +290,7 @@ const ChatBox = () => {
             </div>
             <div className="contact-info-content">
               <div className="contact-avatar">
-                <img src={chatUser.isGroup ? chatUser.groupData?.avatar : chatUser.userData?.avatar} alt={chatUser.isGroup ? chatUser.groupData?.name : chatUser.userData?.name} />
+                <img src={chatUser.isGroup ? (chatUser.groupData?.avatar || assets.logo_icon) : (chatUser.userData?.avatar || assets.avatar_icon)} alt={chatUser.isGroup ? (chatUser.groupData?.name || 'Group') : (chatUser.userData?.name || 'User')} />
                 <div className="online-status">
                   {chatUser.isGroup ? (
                     <span className="status online">
@@ -422,7 +422,7 @@ const ChatBox = () => {
               </div>
               
               <div className="msg-avatar">
-                <img src={msg.sId === userData.id ? userData.avatar : (chatUser.isGroup ? chatUser.groupData?.avatar : chatUser.userData?.avatar)} alt="" />
+                <img src={msg.sId === userData.id ? (userData?.avatar || assets.avatar_icon) : (chatUser.isGroup ? (chatUser.groupData?.avatar || assets.logo_icon) : (chatUser.userData?.avatar || assets.avatar_icon))} alt="" />
                 <p>{convertTimeStamp(msg.createdAt)}</p>
               </div>
             </div>
