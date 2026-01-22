@@ -61,7 +61,7 @@ const ProfileUpdate = () => {
           name:name
         })
       }
-      const snap=await getDoc(doc)
+      const snap=await getDoc(docRef)
       setUserData(snap.data());
       navigate('/chat');
 
