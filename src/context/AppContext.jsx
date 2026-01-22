@@ -63,10 +63,31 @@ const AppContextProvider = (props) => {
                 const chatItems = res.data()?.chatData || [];
                 const tempData=[];
                 for(const item of chatItems){
-                    const userRef=doc(db, "users", item.rId);
-                    const userSnap=await getDoc(userRef);
-                    const userData=userSnap.data();
-                    tempData.push({...item, userData})
+                    try {
+                        if (item.isGroup) {
+                            // For groups, don't fetch user data, use existing groupData
+                            tempData.push({
+                                ...item,
+                                userData: null // Groups don't have userData
+                            });
+                        } else {
+                            // For regular users, fetch user data
+                            const userRef=doc(db, "users", item.rId);
+                            const userSnap=await getDoc(userRef);
+                            const fetchedUserData=userSnap.data();
+                            tempData.push({
+                                ...item, 
+                                userData: fetchedUserData || null
+                            });
+                        }
+                    } catch (error) {
+                        console.error("Error loading chat item:", error);
+                        // Add item with null userData to prevent crashes
+                        tempData.push({
+                            ...item,
+                            userData: null
+                        });
+                    }
                 }
                 setChatData(tempData.sort((a,b)=>b.updateAt-a.updateAt))
             })
@@ -74,7 +95,6 @@ const AppContextProvider = (props) => {
                 unSub();
             }
         }
-
     },[userData])
     
     const value = {

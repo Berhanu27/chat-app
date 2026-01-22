@@ -353,22 +353,38 @@ const LeftSidebar = () => {
                             <p>{user.name}</p>
                         </div>
                     ) : (
-                    chatData && chatData.map((item, index) => {
-                        // Debug log to help identify the problematic item
-                        if (!item.userData && !item.isGroup) {
-                            console.warn('Chat item missing userData:', item);
-                        }
+                    chatData && Array.isArray(chatData) && chatData.filter(item => item && typeof item === 'object').map((item, index) => {
+                        // Ensure item has required properties
+                        const safeItem = {
+                            messagesId: item.messagesId || '',
+                            lastMessage: item.lastMessage || 'No messages yet',
+                            messageSeen: item.messageSeen !== false,
+                            isGroup: item.isGroup || false,
+                            rId: item.rId || '',
+                            userData: item.userData || null,
+                            groupData: item.groupData || null
+                        };
+
+                        // Get safe avatar and name
+                        const avatar = safeItem.isGroup 
+                            ? (safeItem.groupData?.avatar || assets.logo_icon)
+                            : (safeItem.userData?.avatar || assets.avatar_icon);
+                        
+                        const name = safeItem.isGroup
+                            ? (safeItem.groupData?.name || 'Group Chat')
+                            : (safeItem.userData?.name || 'Unknown User');
+
                         return (
-                            <div onClick={()=>setChat(item)} className={`friends ${chatUser && chatUser.messagesId === item.messagesId ? 'active' : ''} ${!item.messageSeen ? 'unread' : ''}`} key={index}>
-                                <img src={item.isGroup ? (item.groupData?.avatar || assets.logo_icon) : (item.userData?.avatar || assets.avatar_icon)} alt="" />
+                            <div onClick={()=>setChat(item)} className={`friends ${chatUser && chatUser.messagesId === safeItem.messagesId ? 'active' : ''} ${!safeItem.messageSeen ? 'unread' : ''}`} key={index}>
+                                <img src={avatar} alt="" onError={(e) => {e.target.src = assets.avatar_icon}} />
                                 <div>
-                                    <p>{item.isGroup ? (item.groupData?.name || 'Group Chat') : (item.userData?.name || 'Unknown User')}</p>
-                                    <span>{item.lastMessage || "No messages yet"}</span>
+                                    <p>{name}</p>
+                                    <span>{safeItem.lastMessage}</span>
                                 </div>
-                                {!item.messageSeen && (
+                                {!safeItem.messageSeen && (
                                     <div className="unread-indicator"></div>
                                 )}
-                                {item.isGroup && (
+                                {safeItem.isGroup && (
                                     <div className="group-indicator">👥</div>
                                 )}
                             </div>
