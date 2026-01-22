@@ -143,6 +143,18 @@
   transform: scale(1.02);
 }
 
+.msg-video {
+  max-width: 250px;
+  max-height: 300px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.msg-video:hover {
+  transform: scale(1.02);
+}
+
 .no-messages {
   display: flex;
   align-items: center;
@@ -248,6 +260,11 @@
     max-height: 250px;
   }
   
+  .msg-video {
+    max-width: 200px;
+    max-height: 250px;
+  }
+  
   .chat-user {
     padding: 8px 12px;
     gap: 8px;
@@ -334,6 +351,12 @@
   }
   
   .msg-image {
+    max-width: 150px;
+    max-height: 200px;
+    border-radius: 8px;
+  }
+  
+  .msg-video {
     max-width: 150px;
     max-height: 200px;
     border-radius: 8px;

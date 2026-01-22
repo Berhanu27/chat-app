@@ -6,7 +6,11 @@ const upload = async (file) => {
     return null;
   }
   
-  const url = `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`;
+  // Determine resource type based on file type
+  const isVideo = file.type.startsWith('video/');
+  const resourceType = isVideo ? 'video' : 'image';
+  
+  const url = `https://api.cloudinary.com/v1_1/${cloudName}/${resourceType}/upload`;
   console.log("Uploading to:", url);
 
   const formData = new FormData();
@@ -22,7 +26,12 @@ const upload = async (file) => {
     console.log("Cloudinary response:", data);
     
     if (data.secure_url) {
-      return data.secure_url;
+      return {
+        url: data.secure_url,
+        type: resourceType,
+        format: data.format,
+        duration: data.duration || null
+      };
     } else {
       console.error("Upload failed:", data.error?.message || data);
       return null;

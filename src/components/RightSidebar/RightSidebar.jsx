@@ -7,13 +7,17 @@ const RightSidebar = () => {
   const {chatUser, messages}=useContext(AppContext);
   const [msgImages, setMsgImages]=useState([]);
   useEffect(()=>{
-    let tempvar=[];
+    let tempImages = [];
+    let tempVideos = [];
     messages.map((msg)=>{
       if(msg.image){
-        tempvar.push(msg.image)
+        tempImages.push(msg.image)
+      }
+      if(msg.video){
+        tempVideos.push(msg.video)
       }
     })
-    setMsgImages(tempvar)
+    setMsgImages([...tempImages, ...tempVideos])
   },[messages])
   return chatUser? (
     <div className='rs'>
