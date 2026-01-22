@@ -224,7 +224,9 @@ const LeftSidebar = () => {
                             <hr />
                             <p onClick={() => setShowMyProfile(true)}>View profile</p>
                             <hr />
-                            <p onClick={() => setShowCreateGroup(true)}>Create Group</p>
+                            <p onClick={() => setShowCreateGroup(true)} className="create-group-menu-item">
+                                <span>👥</span> Create Group
+                            </p>
                             <hr />
                             <p onClick={handleLogout}>Logout</p>
                         </div>

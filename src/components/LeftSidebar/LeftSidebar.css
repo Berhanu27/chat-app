@@ -233,7 +233,22 @@
 .sub-menu p{
   cursor: pointer;
   font-size: 14px;
+}
 
+.create-group-menu-item {
+  background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%) !important;
+  color: white !important;
+  border-radius: 5px !important;
+  padding: 8px 12px !important;
+  margin: 5px 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+  font-weight: 600 !important;
+}
+
+.create-group-menu-item:hover {
+  transform: scale(1.02) !important;
 }
 .menu:hover .sub-menu{
   display: block;
