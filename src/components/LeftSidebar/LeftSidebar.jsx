@@ -150,13 +150,18 @@ const LeftSidebar = () => {
     }
     useEffect(()=>{
         const updatechatUserData=async()=>{
-            if(chatUser){
-                const userRef=doc(db,'users',chatUser.id )
-                const usersnap=await getDoc(userRef);
-                const userData=usersnap.data();
-                setChatUser(prev=>({...prev, userData: userData}    ))
+            if(chatUser && !chatUser.isGroup){
+                try {
+                    const userRef=doc(db,'users',chatUser.rId || chatUser.id);
+                    const usersnap=await getDoc(userRef);
+                    const userData=usersnap.data();
+                    if (userData) {
+                        setChatUser(prev=>({...prev, userData: userData}));
+                    }
+                } catch (error) {
+                    console.error("Error updating chat user data:", error);
+                }
             }
-
         }
         updatechatUserData();
     },[chatData])
@@ -350,9 +355,9 @@ const LeftSidebar = () => {
                     ) : (
                     chatData && chatData.map((item, index) => (
                             <div onClick={()=>setChat(item)} className={`friends ${chatUser && chatUser.messagesId === item.messagesId ? 'active' : ''} ${!item.messageSeen ? 'unread' : ''}`} key={index}>
-                                <img src={item.isGroup ? item.groupData?.avatar || assets.logo_icon : item.userData.avatar} alt="" />
+                                <img src={item.isGroup ? (item.groupData?.avatar || assets.logo_icon) : (item.userData?.avatar || assets.avatar_icon)} alt="" />
                                 <div>
-                                    <p>{item.isGroup ? item.groupData?.name || 'Group Chat' : item.userData.name}</p>
+                                    <p>{item.isGroup ? (item.groupData?.name || 'Group Chat') : (item.userData?.name || 'Unknown User')}</p>
                                     <span>{item.lastMessage || "No messages yet"}</span>
                                 </div>
                                 {!item.messageSeen && (
