@@ -276,7 +276,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
+  z-index: 9999;
+  padding: 10px;
+  box-sizing: border-box;
 }
 
 .contact-info-modal {
@@ -480,10 +482,14 @@
     border-radius: 50%;
     object-fit: cover;
     flex-shrink: 0;
+    cursor: pointer;
+    touch-action: manipulation;
   }
   
   .chat-user p {
     font-size: 14px;
+    cursor: pointer;
+    touch-action: manipulation;
   }
   
   .chat-user .help {
@@ -586,11 +592,15 @@
     border-radius: 50%;
     object-fit: cover;
     flex-shrink: 0;
+    cursor: pointer;
+    touch-action: manipulation;
   }
   
   .chat-user p {
     font-size: 12px;
     flex: 1;
+    cursor: pointer;
+    touch-action: manipulation;
   }
   
   .chat-user .help {
@@ -622,10 +632,16 @@
   }
   
   /* Contact Info Modal - Mobile */
+  .contact-info-overlay {
+    z-index: 10000;
+    padding: 5px;
+  }
+  
   .contact-info-modal {
-    width: 95%;
-    max-width: 320px;
-    margin: 10px;
+    width: calc(100vw - 20px);
+    max-width: none;
+    margin: 0;
+    max-height: calc(100vh - 20px);
   }
   
   .contact-info-header {
@@ -663,6 +679,33 @@
     font-size: 12px;
   }
 }
+
+/* Additional mobile fixes for contact modal */
+@media (max-width: 320px) {
+  .contact-info-overlay {
+    z-index: 10001;
+    padding: 2px;
+  }
+  
+  .contact-info-modal {
+    width: calc(100vw - 10px);
+    max-height: calc(100vh - 10px);
+    border-radius: 8px;
+  }
+  
+  .contact-info-header {
+    padding: 8px;
+  }
+  
+  .contact-info-content {
+    padding: 8px;
+  }
+  
+  .contact-avatar img {
+    width: 50px;
+    height: 50px;
+  }
+}
 @media (max-width: 480px) {
   .chat-box {
     border-left: none;
@@ -673,6 +716,7 @@
     display: flex;
     flex-direction: column;
     position: relative;
+    z-index: 1;
   }
   
   .chat-user {
@@ -683,6 +727,23 @@
     flex-shrink: 0;
     position: relative;
     z-index: 10;
+  }
+  
+  .chat-user > img:nth-child(2) {
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+    cursor: pointer;
+    touch-action: manipulation;
+  }
+  
+  .chat-user p {
+    font-size: 12px;
+    flex: 1;
+    cursor: pointer;
+    touch-action: manipulation;
   }
   
   .chat-msg {
