@@ -17,12 +17,29 @@ const LeftSidebar = () => {
     const inputRef = useRef(null);
     
     const handleLogout = async () => {
-        // Clear all state before logout
-        setChatData(null);
-        setMessages([]);
-        setChatUser(null);
-        setMessagesId(null);
-        await logout();
+        try {
+            console.log("Logout clicked"); // Debug log
+            // Clear all state before logout
+            setChatData(null);
+            setMessages([]);
+            setChatUser(null);
+            setMessagesId(null);
+            await logout();
+            navigate('/'); // Ensure navigation to login page
+        } catch (error) {
+            console.error("Logout error:", error);
+            toast.error("Failed to logout");
+        }
+    }
+
+    const handleEditProfile = () => {
+        try {
+            console.log("Edit profile clicked"); // Debug log
+            navigate('/profile');
+        } catch (error) {
+            console.error("Navigation error:", error);
+            toast.error("Failed to navigate to profile");
+        }
     }
     
     const inputHandler = async (e) => {
@@ -171,7 +188,7 @@ const LeftSidebar = () => {
                     <div className="menu">
                         <img src={assets.menu_icon} alt="" />
                         <div className="sub-menu">
-                            <p onClick={() => navigate('/profile')}>Edit profile</p>
+                            <p onClick={handleEditProfile}>Edit profile</p>
                             <hr />
                             <p onClick={() => setShowMyProfile(true)}>View profile</p>
                             <hr />

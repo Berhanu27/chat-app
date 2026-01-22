@@ -210,29 +210,40 @@
 .ls-nav .menu{
   position: relative;
   padding: 10px 0px;
-
 }
+
 .menu .sub-menu{
   position: absolute;
   top: 100%;
   right: 0;
-  padding: 20px;
-  width: 130px;
-  border-radius: 5px;
+  padding: 15px;
+  width: 140px;
+  border-radius: 8px;
   background-color: white;
   color: black;
   display: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
 }
+
 .sub-menu hr{
   border: none;
   height: 1px;
-  background: #a4a4a4;
+  background: #e5e5e5;
   margin: 8px 0px;
-
 }
+
 .sub-menu p{
   cursor: pointer;
   font-size: 14px;
+  margin: 8px 0;
+  padding: 5px 8px;
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+
+.sub-menu p:hover {
+  background: #f0f0f0;
 }
 
 .create-group-menu-item {

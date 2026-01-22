@@ -19,6 +19,70 @@ const downloadMedia = (url, filename) => {
   document.body.removeChild(link);
 };
 
+// Get file icon based on file extension
+const getFileIcon = (fileName) => {
+  if (!fileName) return '📄';
+  
+  const extension = fileName.toLowerCase().split('.').pop();
+  
+  const iconMap = {
+    // Documents
+    'pdf': '📕',
+    'doc': '📘',
+    'docx': '📘',
+    'txt': '📝',
+    'rtf': '📝',
+    
+    // Spreadsheets
+    'xls': '📊',
+    'xlsx': '📊',
+    'csv': '📊',
+    
+    // Presentations
+    'ppt': '📊',
+    'pptx': '📊',
+    'odp': '📊',
+    
+    // Archives
+    'zip': '🗜️',
+    'rar': '🗜️',
+    '7z': '🗜️',
+    'tar': '🗜️',
+    'gz': '🗜️',
+    
+    // Code files
+    'js': '📜',
+    'jsx': '📜',
+    'ts': '📜',
+    'tsx': '📜',
+    'html': '📜',
+    'css': '📜',
+    'py': '📜',
+    'java': '📜',
+    'cpp': '📜',
+    'c': '📜',
+    'php': '📜',
+    'json': '📜',
+    'xml': '📜',
+    
+    // Audio
+    'mp3': '🎵',
+    'wav': '🎵',
+    'flac': '🎵',
+    'aac': '🎵',
+    'm4a': '🎵',
+    
+    // Other
+    'exe': '⚙️',
+    'msi': '⚙️',
+    'dmg': '⚙️',
+    'apk': '📱',
+    'ipa': '📱'
+  };
+  
+  return iconMap[extension] || '📄';
+};
+
 const ChatBox = () => {
   const { userData, messagesId, chatUser, messages, setMessages, setChatVisible } = useContext(AppContext)
   const[input, setInput]=useState("");
@@ -102,8 +166,22 @@ const ChatBox = () => {
       const file = e.target.files[0];
       if (!file) return;
       
+      // Determine file type for display
+      const isImage = file.type.startsWith('image/');
+      const isVideo = file.type.startsWith('video/');
+      const isDocument = !isImage && !isVideo;
+      
+      let fileTypeText;
+      if (isVideo) {
+        fileTypeText = 'video';
+      } else if (isDocument) {
+        fileTypeText = 'document';
+      } else {
+        fileTypeText = 'image';
+      }
+      
       // Show loading toast
-      const loadingToast = toast.loading(`Uploading ${file.type.startsWith('video/') ? 'video' : 'image'}...`);
+      const loadingToast = toast.loading(`Uploading ${fileTypeText}...`);
       
       const uploadResult = await upload(file);
       
@@ -117,13 +195,20 @@ const ChatBox = () => {
           id: `${userData.id}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
         };
         
-        // Add appropriate field based on file type
+        // Add appropriate field based on file type - ensure no undefined values
         if (uploadResult.type === 'video') {
-          messageData.video = uploadResult.url;
-          messageData.videoFormat = uploadResult.format;
-          messageData.videoDuration = uploadResult.duration;
+          messageData.video = uploadResult.url || '';
+          messageData.videoFormat = uploadResult.format || '';
+          if (uploadResult.duration) {
+            messageData.videoDuration = uploadResult.duration;
+          }
+        } else if (uploadResult.type === 'document') {
+          messageData.document = uploadResult.url || '';
+          messageData.documentName = uploadResult.fileName || 'Unknown File';
+          messageData.documentSize = uploadResult.fileSize || 0;
+          messageData.documentFormat = uploadResult.format || '';
         } else {
-          messageData.image = uploadResult.url;
+          messageData.image = uploadResult.url || '';
         }
         
          await setDoc(doc(db, 'messages', messagesId), {
@@ -138,7 +223,18 @@ const ChatBox = () => {
             const userChatData = userChatsSnapshot.data();
             const chatIndex = userChatData.chatData.findIndex((c) => c.messagesId === messagesId)
             if (chatIndex !== -1) {
-              userChatData.chatData[chatIndex].lastMessage = uploadResult.type === 'video' ? "Video" : "Image";
+              let lastMessage;
+              if (uploadResult.type === 'video') {
+                lastMessage = "📹 Video";
+              } else if (uploadResult.type === 'document') {
+                // Show file extension or type in last message
+                const extension = uploadResult.fileName.split('.').pop().toUpperCase();
+                lastMessage = `📄 ${extension} file`;
+              } else {
+                lastMessage = "🖼️ Image";
+              }
+              
+              userChatData.chatData[chatIndex].lastMessage = lastMessage;
               userChatData.chatData[chatIndex].updatedAt = Date.now();
               if (userChatData.chatData[chatIndex].rId === userData.id) {
                 userChatData.chatData[chatIndex].messageSeen = false;
@@ -151,7 +247,7 @@ const ChatBox = () => {
           }
         })
         
-        toast.success(`${uploadResult.type === 'video' ? 'Video' : 'Image'} uploaded successfully!`);
+        toast.success(`${fileTypeText.charAt(0).toUpperCase() + fileTypeText.slice(1)} uploaded successfully!`);
       } else {
         toast.error('Upload failed. Please try again.');
       }
@@ -238,9 +334,22 @@ const ChatBox = () => {
           if(res.exists() && res.data()?.messages){
             const messagesData = res.data().messages;
             
-            // Clean and validate messages
+            // Clean and validate messages - filter out any with undefined values
             const validMessages = messagesData
-              .filter(msg => msg && (msg.text || msg.image || msg.video))
+              .filter(msg => {
+                // Ensure message has required fields and no undefined values
+                if (!msg || typeof msg !== 'object') return false;
+                if (!msg.sId || (!msg.text && !msg.image && !msg.video && !msg.document)) return false;
+                
+                // Check for undefined values in the message object
+                for (const [key, value] of Object.entries(msg)) {
+                  if (value === undefined) {
+                    console.warn(`Message has undefined value for key: ${key}`, msg);
+                    return false;
+                  }
+                }
+                return true;
+              })
               .map((msg, index) => ({
                 ...msg,
                 createdAt: msg.createdAt || Date.now(),
@@ -370,6 +479,25 @@ const ChatBox = () => {
                       Your browser does not support the video tag.
                     </video>
                   </div>
+                ) : msg.document ? (
+                  <div className="msg-content document-message">
+                    <div className="document-info">
+                      <div className="document-icon">{getFileIcon(msg.documentName)}</div>
+                      <div className="document-details">
+                        <p className="document-name">{msg.documentName || 'Document'}</p>
+                        <span className="document-size">
+                          {msg.documentSize ? `${(msg.documentSize / 1024 / 1024).toFixed(2)} MB` : 'Unknown size'}
+                        </span>
+                      </div>
+                      <button 
+                        className="download-btn"
+                        onClick={() => downloadMedia(msg.document, msg.documentName || `document_${index}`)}
+                        title="Download file"
+                      >
+                        ⬇️
+                      </button>
+                    </div>
+                  </div>
                 ) : (
                   <p className='msg'>{msg.text}</p>
                 )}
@@ -411,8 +539,8 @@ const ChatBox = () => {
 
       <div className="chat-input">
         <input onChange={(e)=>setInput(e.target.value)} value={input} type="text" placeholder='Send a message' />
-        <input onChange={sendImage} type="file" id='media' accept='image/*,video/*' hidden />
-        <label htmlFor="media" title="Upload image or video">
+        <input onChange={sendImage} type="file" id='media' accept='*' hidden />
+        <label htmlFor="media" title="Upload any file (images, videos, documents, etc.)">
           <img src={assets.gallery_icon} alt="" />
         </label>
         <img onClick={sendMessage} src={assets.send_button} alt="" />

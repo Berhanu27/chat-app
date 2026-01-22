@@ -6,15 +6,43 @@ const upload = async (file) => {
     throw new Error("Cloudinary configuration missing");
   }
   
-  // Check file size (limit to 10MB for images, 50MB for videos)
-  const maxSize = file.type.startsWith('video/') ? 50 * 1024 * 1024 : 10 * 1024 * 1024;
-  if (file.size > maxSize) {
-    throw new Error(`File too large. Maximum size: ${file.type.startsWith('video/') ? '50MB' : '10MB'}`);
+  // Determine file type and size limits
+  const isVideo = file.type.startsWith('video/');
+  const isImage = file.type.startsWith('image/');
+  const isDocument = !isVideo && !isImage;
+  
+  // Set size limits based on file type
+  let maxSize;
+  if (isVideo) {
+    maxSize = 100 * 1024 * 1024; // 100MB for videos
+  } else if (isImage) {
+    maxSize = 10 * 1024 * 1024; // 10MB for images
+  } else {
+    // Different limits for different document types
+    const extension = file.name.toLowerCase().split('.').pop();
+    const largeFileTypes = ['zip', 'rar', '7z', 'tar', 'gz', 'exe', 'msi', 'dmg', 'iso'];
+    
+    if (largeFileTypes.includes(extension)) {
+      maxSize = 100 * 1024 * 1024; // 100MB for archives and executables
+    } else {
+      maxSize = 50 * 1024 * 1024; // 50MB for other documents
+    }
   }
   
-  // Determine resource type based on file type
-  const isVideo = file.type.startsWith('video/');
-  const resourceType = isVideo ? 'video' : 'image';
+  if (file.size > maxSize) {
+    const maxSizeMB = maxSize / (1024 * 1024);
+    throw new Error(`File too large. Maximum size: ${maxSizeMB}MB`);
+  }
+  
+  // Determine resource type for Cloudinary
+  let resourceType;
+  if (isVideo) {
+    resourceType = 'video';
+  } else if (isImage) {
+    resourceType = 'image';
+  } else {
+    resourceType = 'raw'; // For documents and other files
+  }
   
   const url = `https://api.cloudinary.com/v1_1/${cloudName}/${resourceType}/upload`;
   console.log("Uploading to:", url);
@@ -39,9 +67,11 @@ const upload = async (file) => {
     if (data.secure_url) {
       return {
         url: data.secure_url,
-        type: resourceType,
-        format: data.format,
-        duration: data.duration || null
+        type: isDocument ? 'document' : resourceType,
+        format: data.format || '',
+        duration: data.duration || null,
+        fileName: file.name || 'unknown',
+        fileSize: file.size || 0
       };
     } else {
       throw new Error(data.error?.message || "Upload failed");
