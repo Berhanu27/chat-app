@@ -2,15 +2,17 @@ import './ChatBox.css'
 import assets from '../../assets/assets'
 import { useContext, useEffect, useState, useRef } from 'react'
 import { AppContext } from '../../context/AppContext'
-import { arrayUnion, doc, getDoc, onSnapshot, setDoc, updateDoc, serverTimestamp } from 'firebase/firestore'
+import { arrayUnion, doc, getDoc, onSnapshot, setDoc, updateDoc } from 'firebase/firestore'
 import { db } from '../../config/Firebase'
 import { toast } from 'react-toastify'
 import upload from '../../lib/upload'
+import { playNotificationSound, requestNotificationPermission, showBrowserNotification } from '../../utils/sound'
 
 const ChatBox = () => {
-  const { userData, messagesId, chatUser, messages, setMessages,chatVisible, setChatVisible } = useContext(AppContext)
+  const { userData, messagesId, chatUser, messages, setMessages, setChatVisible } = useContext(AppContext)
   const[input, setInput]=useState("");
   const messagesEndRef = useRef(null);
+  const prevMessagesLength = useRef(0);
   const sendMessage = async () => {
     try {
       if (input && messagesId) {
@@ -125,7 +127,33 @@ const ChatBox = () => {
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
-  }, [messages])
+    
+    // Play notification sound for new messages (not from current user)
+    if (messages.length > prevMessagesLength.current && prevMessagesLength.current > 0) {
+      const latestMessage = messages[messages.length - 1];
+      if (latestMessage && latestMessage.sId !== userData?.id) {
+        // Play sound notification
+        playNotificationSound();
+        
+        // Show browser notification if permission granted
+        if (chatUser) {
+          const messageText = latestMessage.text || 'Sent an image';
+          showBrowserNotification(
+            `New message from ${chatUser.userData.name}`,
+            messageText,
+            chatUser.userData.avatar
+          );
+        }
+      }
+    }
+    
+    prevMessagesLength.current = messages.length;
+  }, [messages, userData?.id, chatUser])
+
+  // Request notification permission when component mounts
+  useEffect(() => {
+    requestNotificationPermission();
+  }, [])
 
   useEffect(()=>{
     if(messagesId){
