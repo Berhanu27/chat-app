@@ -1,18 +1,7 @@
 // Sound notification utility
 export const playNotificationSound = () => {
-  try {
-    const audio = new Audio('/notification.mp3');
-    audio.volume = 0.5; // Set volume to 50%
-    audio.play().catch(error => {
-      console.log('Could not play notification sound:', error);
-      // Fallback to beep sound if MP3 fails
-      playBeepSound();
-    });
-  } catch (error) {
-    console.log('Audio not supported:', error);
-    // Fallback to beep sound
-    playBeepSound();
-  }
+  // Always use beep sound since MP3 file doesn't exist
+  playBeepSound();
 };
 
 // Alternative: Use Web Audio API for better browser support

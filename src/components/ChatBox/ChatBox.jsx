@@ -58,7 +58,7 @@ const ChatBox = () => {
           sId: userData.id,
           text: input,
           createdAt: Date.now(),
-          id: `${userData.id}_${Date.now()}_${Math.random()}`
+          id: `${userData.id}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
         };
         
         await setDoc(doc(db, 'messages', messagesId), {
@@ -101,12 +101,19 @@ const ChatBox = () => {
       const file = e.target.files[0];
       if (!file) return;
       
+      // Show loading toast
+      const loadingToast = toast.loading(`Uploading ${file.type.startsWith('video/') ? 'video' : 'image'}...`);
+      
       const uploadResult = await upload(file);
+      
+      // Dismiss loading toast
+      toast.dismiss(loadingToast);
+      
       if(uploadResult && messagesId){
         const messageData = {
           sId: userData.id,
           createdAt: Date.now(),
-          id: `${userData.id}_${Date.now()}_${Math.random()}`
+          id: `${userData.id}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
         };
         
         // Add appropriate field based on file type
@@ -142,13 +149,20 @@ const ChatBox = () => {
             }, { merge: true })
           }
         })
+        
+        toast.success(`${uploadResult.type === 'video' ? 'Video' : 'Image'} uploaded successfully!`);
+      } else {
+        toast.error('Upload failed. Please try again.');
       }
       
       // Clear the input
       e.target.value = '';
       
     } catch (error) {
-      toast.error(error.message)
+      console.error('Upload error:', error);
+      toast.error(`Upload failed: ${error.message}`);
+      // Clear the input even on error
+      e.target.value = '';
     }
   }
 
@@ -211,42 +225,46 @@ const ChatBox = () => {
   }, [])
 
   useEffect(()=>{
-    if(messagesId){
-      console.log("Setting up listener for messagesId:", messagesId); // Debug log
-      setMessages([]); // Clear previous messages immediately
-      const unSub=onSnapshot(doc(db, 'messages',messagesId),(res)=>{
-        console.log("Message document snapshot:", res.exists(), res.data()); // Debug log
-        if(res.exists() && res.data().messages){
-          const messagesData = res.data().messages;
-          // Ensure all messages have valid timestamps
-          const validMessages = messagesData.filter(msg => {
-            if (!msg.createdAt) {
-              console.warn("Message without timestamp:", msg);
-              return false;
-            }
-            return true;
-          }).map(msg => ({
-            ...msg,
-            // Ensure createdAt is always a valid timestamp
-            createdAt: msg.createdAt || Date.now(),
-            // Add unique ID for deletion
-            id: msg.id || `${msg.sId}_${msg.createdAt || Date.now()}_${Math.random()}`
-          }));
-          
-          console.log("Setting messages:", validMessages); // Debug log
-          setMessages(validMessages)
-        } else {
-          console.log("No messages found or document doesn't exist"); // Debug log
+    if(messagesId && messagesId.length > 0){
+      console.log("Setting up listener for messagesId:", messagesId);
+      setMessages([]);
+      
+      try {
+        const unSub = onSnapshot(doc(db, 'messages', messagesId), (res) => {
+          console.log("Message document snapshot:", res.exists());
+          if(res.exists() && res.data()?.messages){
+            const messagesData = res.data().messages;
+            
+            // Clean and validate messages
+            const validMessages = messagesData
+              .filter(msg => msg && (msg.text || msg.image || msg.video))
+              .map((msg, index) => ({
+                ...msg,
+                createdAt: msg.createdAt || Date.now(),
+                id: msg.id || `msg_${index}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+              }))
+              .sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
+            
+            console.log("Setting messages:", validMessages.length);
+            setMessages(validMessages);
+          } else {
+            console.log("No messages found");
+            setMessages([]);
+          }
+        }, (error) => {
+          console.error("Firestore listener error:", error);
           setMessages([]);
-        }
-      }, (error) => {
-        console.error("Error in messages listener:", error); // Error handling
-      })
-      return () => unSub();
+        });
+        
+        return () => unSub();
+      } catch (error) {
+        console.error("Error setting up listener:", error);
+        setMessages([]);
+      }
     } else {
-      setMessages([]); // Clear messages if no chat selected
+      setMessages([]);
     }
-  },[messagesId])
+  }, [messagesId])
   return chatUser ? (
     <div className='chat-box'>
       <div className="chat-user">

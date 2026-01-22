@@ -3,7 +3,13 @@ const upload = async (file) => {
   
   if (!cloudName) {
     console.error("VITE_CLOUDINARY_CLOUD_NAME is not set!");
-    return null;
+    throw new Error("Cloudinary configuration missing");
+  }
+  
+  // Check file size (limit to 10MB for images, 50MB for videos)
+  const maxSize = file.type.startsWith('video/') ? 50 * 1024 * 1024 : 10 * 1024 * 1024;
+  if (file.size > maxSize) {
+    throw new Error(`File too large. Maximum size: ${file.type.startsWith('video/') ? '50MB' : '10MB'}`);
   }
   
   // Determine resource type based on file type
@@ -22,6 +28,11 @@ const upload = async (file) => {
       method: "POST",
       body: formData,
     });
+    
+    if (!res.ok) {
+      throw new Error(`Upload failed: ${res.status} ${res.statusText}`);
+    }
+    
     const data = await res.json();
     console.log("Cloudinary response:", data);
     
@@ -33,12 +44,11 @@ const upload = async (file) => {
         duration: data.duration || null
       };
     } else {
-      console.error("Upload failed:", data.error?.message || data);
-      return null;
+      throw new Error(data.error?.message || "Upload failed");
     }
   } catch (err) {
     console.error("Cloudinary upload error:", err);
-    return null;
+    throw err;
   }
 };
 
