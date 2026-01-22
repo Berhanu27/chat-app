@@ -13,9 +13,6 @@ const LeftSidebar = () => {
     const [user, setUser] = useState(null)
     const [showSearch, setShowSearch] = useState(false)
     const [showMyProfile, setShowMyProfile] = useState(false)
-    const [showCreateGroup, setShowCreateGroup] = useState(false)
-    const [groupName, setGroupName] = useState('')
-    const [groupDescription, setGroupDescription] = useState('')
     const [isLoading, setIsLoading] = useState(true)
     const inputRef = useRef(null);
     
@@ -59,81 +56,10 @@ const LeftSidebar = () => {
             console.error("Search error:", error);
         }
     }
-    const createGroup = async () => {
-        if (!groupName.trim()) {
-            toast.error('Please enter a group name');
-            return;
-        }
-        
-        try {
-            const messagesRef = collection(db, 'messages');
-            const groupsRef = collection(db, 'groups');
-            
-            // Create new message document for the group
-            const newMessageRef = doc(messagesRef);
-            await setDoc(newMessageRef, {
-                createAt: serverTimestamp(),
-                messages: [{
-                    sId: 'system',
-                    text: `Group "${groupName}" created by ${userData.name}`,
-                    createdAt: Date.now(),
-                    id: `system_${Date.now()}`
-                }]
-            });
-            
-            // Create group document
-            const groupId = `group_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-            const groupData = {
-                id: groupId,
-                name: groupName.trim(),
-                description: groupDescription.trim() || '',
-                avatar: assets.logo_icon,
-                createdBy: userData.id,
-                createdAt: Date.now(),
-                members: [userData.id],
-                messagesId: newMessageRef.id,
-                isGroup: true
-            };
-            
-            await setDoc(doc(groupsRef, groupId), groupData);
-            
-            // Add group to user's chat list with complete group data
-            const chatItem = {
-                messagesId: newMessageRef.id,
-                lastMessage: `Group "${groupName}" created`,
-                rId: groupId,
-                updateAt: Date.now(),
-                messageSeen: true,
-                isGroup: true,
-                groupData: {
-                    id: groupId,
-                    name: groupName.trim(),
-                    description: groupDescription.trim() || '',
-                    avatar: assets.logo_icon,
-                    members: [userData.id],
-                    createdBy: userData.id,
-                    createdAt: Date.now()
-                }
-            };
-            
-            await updateDoc(doc(db, 'chats', userData.id), {
-                chatData: arrayUnion(chatItem)
-            });
-            
-            toast.success('Group created successfully!');
-            setShowCreateGroup(false);
-            setGroupName('');
-            setGroupDescription('');
-            
-        } catch (error) {
-            console.error('Error creating group:', error);
-            toast.error('Failed to create group');
-        }
-    };
     
     const setChat = async (item) => {
-        console.log("Setting chat:", item); // Debug log
-        console.log("MessagesId being set:", item.messagesId); // Debug the messagesId
+        console.log("Setting chat:", item);
+        console.log("MessagesId being set:", item.messagesId);
         
         setMessagesId(item.messagesId);
         setChatUser(item);
@@ -143,7 +69,7 @@ const LeftSidebar = () => {
             const userChatsSnapshot = await getDoc(userChatsRef);
             if (userChatsSnapshot.exists()) {
                 const userChatData = userChatsSnapshot.data();
-                console.log("User chat data:", userChatData); // Debug log
+                console.log("User chat data:", userChatData);
                 const chatIndex = userChatData.chatData.findIndex((c) => c.messagesId === item.messagesId);
                 if (chatIndex !== -1) {
                     userChatData.chatData[chatIndex].messageSeen = true;
@@ -155,6 +81,7 @@ const LeftSidebar = () => {
             console.error("Error updating message seen:", error);
         }
     }
+
     useEffect(()=>{
         const updatechatUserData=async()=>{
             if(chatUser && !chatUser.isGroup){
@@ -202,7 +129,8 @@ const LeftSidebar = () => {
             </div>
         );
     }
-  return (
+
+    return (
         <div className="ls">
             <div className="ls-top">
                 <div className="ls-nav">
@@ -274,64 +202,11 @@ const LeftSidebar = () => {
                     </div>
                 )}
 
-                {/* Create Group Modal */}
-                {showCreateGroup && (
-                    <div className="group-create-overlay" onClick={() => setShowCreateGroup(false)}>
-                        <div className="group-create-modal" onClick={(e) => e.stopPropagation()}>
-                            <div className="group-create-header">
-                                <h3>Create New Group</h3>
-                                <button className="close-btn" onClick={() => setShowCreateGroup(false)}>×</button>
-                            </div>
-                            <div className="group-create-content">
-                                <div className="group-avatar-section">
-                                    <img src={assets.logo_icon} alt="Group Avatar" className="group-avatar-preview" />
-                                    <p>Default Group Avatar</p>
-                                </div>
-                                <div className="group-form">
-                                    <div className="form-group">
-                                        <label>Group Name *</label>
-                                        <input 
-                                            type="text" 
-                                            placeholder="Enter group name"
-                                            value={groupName}
-                                            onChange={(e) => setGroupName(e.target.value)}
-                                            maxLength={50}
-                                        />
-                                    </div>
-                                    <div className="form-group">
-                                        <label>Description (Optional)</label>
-                                        <textarea 
-                                            placeholder="Enter group description"
-                                            value={groupDescription}
-                                            onChange={(e) => setGroupDescription(e.target.value)}
-                                            maxLength={200}
-                                            rows={3}
-                                        />
-                                    </div>
-                                    <div className="group-actions">
-                                        <button 
-                                            className="cancel-btn" 
-                                            onClick={() => setShowCreateGroup(false)}
-                                        >
-                                            Cancel
-                                        </button>
-                                        <button 
-                                            className="create-btn" 
-                                            onClick={createGroup}
-                                            disabled={!groupName.trim()}
-                                        >
-                                            Create Group
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                )}
                 <div className="ls-search">
                     <img src={assets.search_icon} alt="Search" style={{display: 'block', minWidth: '18px'}} />
                     <input ref={inputRef} onChange={inputHandler} type="text" placeholder='Search here..' />
                 </div>
+                
                 <div className="ls-list">
                     {showSearch && user ? (
                         <div onClick={async () => {
@@ -390,83 +265,49 @@ const LeftSidebar = () => {
                             <p>{user.name}</p>
                         </div>
                     ) : (
-                    chatData && Array.isArray(chatData) && chatData.length > 0 ? (
-                        chatData.filter(item => item && typeof item === 'object').map((item, index) => {
-                            // Ensure item has required properties with better validation
-                            const safeItem = {
-                                messagesId: item.messagesId || '',
-                                lastMessage: item.lastMessage || 'No messages yet',
-                                messageSeen: item.messageSeen !== false,
-                                isGroup: item.isGroup || false,
-                                rId: item.rId || '',
-                                userData: item.userData || null,
-                                groupData: item.groupData || null
-                            };
+                        chatData && Array.isArray(chatData) && chatData.length > 0 ? (
+                            chatData.filter(item => item && typeof item === 'object' && !item.isGroup).map((item, index) => {
+                                // Only show regular user chats, filter out any groups
+                                const safeItem = {
+                                    messagesId: item.messagesId || '',
+                                    lastMessage: item.lastMessage || 'No messages yet',
+                                    messageSeen: item.messageSeen !== false,
+                                    rId: item.rId || '',
+                                    userData: item.userData || null
+                                };
 
-                            // Enhanced validation for group and user data
-                            let avatar, name;
-                            
-                            if (safeItem.isGroup) {
-                                // For groups, ensure groupData exists and has required fields
-                                if (safeItem.groupData && typeof safeItem.groupData === 'object') {
-                                    avatar = safeItem.groupData.avatar || assets.logo_icon;
-                                    name = safeItem.groupData.name || 'Group Chat';
-                                } else {
-                                    // Fallback if groupData is missing or invalid
-                                    avatar = assets.logo_icon;
-                                    name = 'Group Chat';
-                                    console.warn('Group data missing for item:', safeItem);
-                                }
-                            } else {
-                                // For users, ensure userData exists and has required fields
-                                if (safeItem.userData && typeof safeItem.userData === 'object') {
-                                    avatar = safeItem.userData.avatar || assets.avatar_icon;
-                                    name = safeItem.userData.name || 'Loading...';
-                                } else {
-                                    // Fallback if userData is missing or invalid
-                                    avatar = assets.avatar_icon;
-                                    name = 'Loading...';
-                                }
-                            }
+                                const avatar = safeItem.userData?.avatar || assets.avatar_icon;
+                                const name = safeItem.userData?.name || 'Loading...';
 
-                            return (
-                                <div onClick={()=>setChat(item)} className={`friends ${chatUser && chatUser.messagesId === safeItem.messagesId ? 'active' : ''} ${!safeItem.messageSeen ? 'unread' : ''}`} key={index}>
-                                    <img 
-                                        src={avatar} 
-                                        alt="" 
-                                        onError={(e) => {
-                                            e.target.src = safeItem.isGroup ? assets.logo_icon : assets.avatar_icon;
-                                        }} 
-                                    />
-                                    <div>
-                                        <p>{name}</p>
-                                        <span>{safeItem.lastMessage}</span>
+                                return (
+                                    <div onClick={()=>setChat(item)} className={`friends ${chatUser && chatUser.messagesId === safeItem.messagesId ? 'active' : ''} ${!safeItem.messageSeen ? 'unread' : ''}`} key={index}>
+                                        <img 
+                                            src={avatar} 
+                                            alt="" 
+                                            onError={(e) => {
+                                                e.target.src = assets.avatar_icon;
+                                            }} 
+                                        />
+                                        <div>
+                                            <p>{name}</p>
+                                            <span>{safeItem.lastMessage}</span>
+                                        </div>
+                                        {!safeItem.messageSeen && (
+                                            <div className="unread-indicator"></div>
+                                        )}
                                     </div>
-                                    {!safeItem.messageSeen && (
-                                        <div className="unread-indicator"></div>
-                                    )}
-                                    {safeItem.isGroup && (
-                                        <div className="group-indicator">👥</div>
-                                    )}
-                                </div>
-                            );
-                        })
-                    ) : (
-                        <div className="no-chats-message">
-                            <p>No chats yet. Search for users to start chatting!</p>
-                        </div>
-                    )
+                                );
+                            })
+                        ) : (
+                            <div className="no-chats-message">
+                                <p>No chats yet. Search for users to start chatting!</p>
+                            </div>
+                        )
                     )}
-                    
-                    {/* Simple Create Group Option */}
-                    <div onClick={() => setShowCreateGroup(true)} className="friends add-user" style={{background: 'rgba(76, 175, 80, 0.1)', border: '2px dashed #4CAF50'}}>
-                        <img src={assets.logo_icon} alt="" />
-                        <p style={{color: '#4CAF50', fontWeight: 'bold'}}>👥 Create New Group</p>
-                    </div>
                 </div>
             </div>
         </div>
     )
 }
 
-    export default LeftSidebar
+export default LeftSidebar

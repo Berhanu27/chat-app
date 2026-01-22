@@ -208,8 +208,8 @@ const ChatBox = () => {
         // Show browser notification if permission granted
         if (chatUser) {
           const messageText = latestMessage.text || 'Sent an image';
-          const senderName = chatUser.isGroup ? chatUser.groupData?.name : chatUser.userData?.name;
-          const senderAvatar = chatUser.isGroup ? (chatUser.groupData?.avatar || assets.logo_icon) : (chatUser.userData?.avatar || assets.avatar_icon);
+          const senderName = chatUser.userData?.name;
+          const senderAvatar = chatUser.userData?.avatar || assets.avatar_icon;
           showBrowserNotification(
             `New message from ${senderName}`,
             messageText,
@@ -273,23 +273,17 @@ const ChatBox = () => {
       <div className="chat-user">
         <img src={assets.arrow_icon} alt="Back" className='back-btn' onClick={() => setChatVisible(false)} />
         <img 
-          src={chatUser.isGroup 
-            ? (chatUser.groupData?.avatar || assets.logo_icon) 
-            : (chatUser.userData?.avatar || assets.avatar_icon)
-          } 
+          src={chatUser.userData?.avatar || assets.avatar_icon} 
           alt="" 
           onClick={() => setShowContactInfo(true)} 
           style={{cursor: 'pointer'}}
           onError={(e) => {
-            e.target.src = chatUser.isGroup ? assets.logo_icon : assets.avatar_icon;
+            e.target.src = assets.avatar_icon;
           }}
         />
         <p onClick={() => setShowContactInfo(true)} style={{cursor: 'pointer'}}>
-          {chatUser.isGroup 
-            ? (chatUser.groupData && chatUser.groupData.name ? chatUser.groupData.name : 'Group Chat') 
-            : (chatUser.userData && chatUser.userData.name ? chatUser.userData.name : 'Loading...')
-          } 
-          {!chatUser.isGroup && chatUser.userData && Date.now()-chatUser.userData.lastSeen<=70000 ? <img className='dot' src={assets.green_dot} alt="" />: null}
+          {chatUser.userData?.name || 'Loading...'} 
+          {chatUser.userData && Date.now()-chatUser.userData.lastSeen<=70000 ? <img className='dot' src={assets.green_dot} alt="" />: null}
         </p>
         <img src={assets.help_icon} alt="" className='help' />
       </div>
@@ -299,30 +293,20 @@ const ChatBox = () => {
         <div className="contact-info-overlay" onClick={() => setShowContactInfo(false)}>
           <div className="contact-info-modal" onClick={(e) => e.stopPropagation()}>
             <div className="contact-info-header">
-              <h3>{chatUser.isGroup ? 'Group Info' : 'Contact Info'}</h3>
+              <h3>Contact Info</h3>
               <button className="close-btn" onClick={() => setShowContactInfo(false)}>×</button>
             </div>
             <div className="contact-info-content">
               <div className="contact-avatar">
                 <img 
-                  src={chatUser.isGroup 
-                    ? (chatUser.groupData?.avatar || assets.logo_icon) 
-                    : (chatUser.userData?.avatar || assets.avatar_icon)
-                  } 
-                  alt={chatUser.isGroup 
-                    ? (chatUser.groupData?.name || 'Group') 
-                    : (chatUser.userData?.name || 'User')
-                  }
+                  src={chatUser.userData?.avatar || assets.avatar_icon} 
+                  alt={chatUser.userData?.name || 'User'}
                   onError={(e) => {
-                    e.target.src = chatUser.isGroup ? assets.logo_icon : assets.avatar_icon;
+                    e.target.src = assets.avatar_icon;
                   }}
                 />
                 <div className="online-status">
-                  {chatUser.isGroup ? (
-                    <span className="status online">
-                      👥 Group Chat
-                    </span>
-                  ) : chatUser.userData && Date.now()-chatUser.userData.lastSeen<=70000 ? (
+                  {chatUser.userData && Date.now()-chatUser.userData.lastSeen<=70000 ? (
                     <span className="status online">
                       <img src={assets.green_dot} alt="" />
                       Online
@@ -337,70 +321,22 @@ const ChatBox = () => {
               <div className="contact-details">
                 <div className="detail-item">
                   <label>Name:</label>
-                  <span>{chatUser.isGroup 
-                    ? (chatUser.groupData && chatUser.groupData.name ? chatUser.groupData.name : 'Group Chat') 
-                    : (chatUser.userData && chatUser.userData.name ? chatUser.userData.name : 'Loading...')
-                  }</span>
+                  <span>{chatUser.userData?.name || 'Loading...'}</span>
                 </div>
-                {chatUser.isGroup ? (
-                  <>
-                    {chatUser.groupData?.description && (
-                      <div className="detail-item">
-                        <label>Description:</label>
-                        <span>{chatUser.groupData.description}</span>
-                      </div>
-                    )}
-                    <div className="detail-item">
-                      <label>Members:</label>
-                      <span>{chatUser.groupData?.members?.length || 1} member(s)</span>
-                    </div>
-                    <div className="detail-item">
-                      <label>Created:</label>
-                      <span>{new Date().toLocaleDateString()}</span>
-                    </div>
-                    {/* Add Members Button for Groups */}
-                    <div className="detail-item">
-                      <button 
-                        onClick={() => {
-                          const username = prompt('Enter username to add to group:');
-                          if (username) {
-                            // TODO: Implement add member functionality
-                            toast.info('Add member feature coming soon!');
-                          }
-                        }}
-                        style={{
-                          background: '#4CAF50',
-                          color: 'white',
-                          border: 'none',
-                          padding: '8px 16px',
-                          borderRadius: '20px',
-                          cursor: 'pointer',
-                          fontSize: '12px',
-                          marginTop: '10px'
-                        }}
-                      >
-                        👥 Add Members
-                      </button>
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    <div className="detail-item">
-                      <label>Username:</label>
-                      <span>@{chatUser.userData?.username}</span>
-                    </div>
-                    {chatUser.userData?.bio && (
-                      <div className="detail-item">
-                        <label>Bio:</label>
-                        <span>{chatUser.userData.bio}</span>
-                      </div>
-                    )}
-                    <div className="detail-item">
-                      <label>Member since:</label>
-                      <span>{chatUser.userData ? new Date(chatUser.userData.id).toLocaleDateString() : 'Unknown'}</span>
-                    </div>
-                  </>
+                <div className="detail-item">
+                  <label>Username:</label>
+                  <span>@{chatUser.userData?.username}</span>
+                </div>
+                {chatUser.userData?.bio && (
+                  <div className="detail-item">
+                    <label>Bio:</label>
+                    <span>{chatUser.userData.bio}</span>
+                  </div>
                 )}
+                <div className="detail-item">
+                  <label>Member since:</label>
+                  <span>{chatUser.userData ? new Date(chatUser.userData.id).toLocaleDateString() : 'Unknown'}</span>
+                </div>
               </div>
             </div>
           </div>
@@ -454,15 +390,11 @@ const ChatBox = () => {
                 <img 
                   src={msg.sId === userData.id 
                     ? (userData?.avatar || assets.avatar_icon) 
-                    : (chatUser.isGroup 
-                      ? (chatUser.groupData?.avatar || assets.logo_icon) 
-                      : (chatUser.userData?.avatar || assets.avatar_icon)
-                    )
+                    : (chatUser.userData?.avatar || assets.avatar_icon)
                   } 
                   alt=""
                   onError={(e) => {
-                    e.target.src = msg.sId === userData.id ? assets.avatar_icon : 
-                      (chatUser.isGroup ? assets.logo_icon : assets.avatar_icon);
+                    e.target.src = assets.avatar_icon;
                   }}
                 />
                 <p>{convertTimeStamp(msg.createdAt)}</p>

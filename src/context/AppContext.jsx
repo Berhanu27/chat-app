@@ -72,14 +72,8 @@ const AppContextProvider = (props) => {
                 const tempData=[];
                 for(const item of chatItems){
                     try {
-                        if (item.isGroup) {
-                            // For groups, don't fetch user data, use existing groupData
-                            tempData.push({
-                                ...item,
-                                userData: null // Groups don't have userData
-                            });
-                        } else {
-                            // For regular users, fetch user data
+                        // Only process regular user chats, skip any groups
+                        if (!item.isGroup) {
                             const userRef=doc(db, "users", item.rId);
                             const userSnap=await getDoc(userRef);
                             const fetchedUserData=userSnap.data();
@@ -91,10 +85,12 @@ const AppContextProvider = (props) => {
                     } catch (error) {
                         console.error("Error loading chat item:", error);
                         // Add item with null userData to prevent crashes
-                        tempData.push({
-                            ...item,
-                            userData: null
-                        });
+                        if (!item.isGroup) {
+                            tempData.push({
+                                ...item,
+                                userData: null
+                            });
+                        }
                     }
                 }
                 setChatData(tempData.sort((a,b)=>b.updateAt-a.updateAt))
