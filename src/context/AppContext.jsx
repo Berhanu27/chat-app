@@ -14,29 +14,36 @@ const AppContextProvider = (props) => {
     const[messages, setMessages]=useState([])
     const[chatUser, setChatUser]=useState(null)
     const [chatVisible, setChatVisible]=useState(false)
+    const [isLoading, setIsLoading] = useState(true)
 
 
     const loadUserData= async(uid)=>{
-        const userRef=doc(db,"users",uid);
-        const userSnap=await getDoc(userRef);
-        const userData=userSnap.data();
-        setUserData(userData);
-        if(userData.avatar && userData.name){
-            navigate("/chat");
-        
-        }else{ navigate("/profile");}
+        setIsLoading(true);
+        try {
+            const userRef=doc(db,"users",uid);
+            const userSnap=await getDoc(userRef);
+            const userData=userSnap.data();
+            setUserData(userData);
+            if(userData.avatar && userData.name){
+                navigate("/chat");
+            
+            }else{ navigate("/profile");}
 
-        await updateDoc(userRef, {
-           lastSeen:Date.now()
-        });
-        setInterval(async () => {
-            if (auth.currentUser) {
-                await updateDoc(userRef, {
-                    lastSeen: Date.now()
-                });
-            }
-        }, 60000);
-
+            await updateDoc(userRef, {
+               lastSeen:Date.now()
+            });
+            setInterval(async () => {
+                if (auth.currentUser) {
+                    await updateDoc(userRef, {
+                        lastSeen: Date.now()
+                    });
+                }
+            }, 60000);
+        } catch (error) {
+            console.error("Error loading user data:", error);
+        } finally {
+            setIsLoading(false);
+        }
     }
     useEffect(() => {
         const unSub = onAuthStateChanged(auth, async (user) => {
@@ -50,6 +57,7 @@ const AppContextProvider = (props) => {
                 setMessages([]);
                 setChatUser(null);
                 setMessagesId(null);
+                setIsLoading(false);
                 navigate("/");
             }
         });
@@ -105,7 +113,8 @@ const AppContextProvider = (props) => {
         loadUserData,
         messages,setMessages,
         messagesId,setMessagesId,
-        chatUser, setChatUser,chatVisible,setChatVisible
+        chatUser, setChatUser,chatVisible,setChatVisible,
+        isLoading
 
     };
     

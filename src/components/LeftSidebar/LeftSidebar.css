@@ -669,6 +669,7 @@
     height: 35px;
   }
 }
+
 /* Mobile border adjustments */
 @media (max-width: 480px) {
   .ls {
@@ -971,4 +972,20 @@
 .create-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+/* Loading states */
+.loading-message, .no-chats-message {
+  text-align: center;
+  padding: 20px;
+  color: #666;
+  font-style: italic;
+}
+
+.loading-message {
+  color: #007bff;
+}
+
+.no-chats-message p {
+  margin: 0;
+  color: #888;
 }

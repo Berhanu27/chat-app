@@ -272,9 +272,23 @@ const ChatBox = () => {
     <div className='chat-box'>
       <div className="chat-user">
         <img src={assets.arrow_icon} alt="Back" className='back-btn' onClick={() => setChatVisible(false)} />
-        <img src={chatUser.isGroup ? (chatUser.groupData?.avatar || assets.logo_icon) : (chatUser.userData?.avatar || assets.avatar_icon)} alt="" onClick={() => setShowContactInfo(true)} style={{cursor: 'pointer'}} />
+        <img 
+          src={chatUser.isGroup 
+            ? (chatUser.groupData?.avatar || assets.logo_icon) 
+            : (chatUser.userData?.avatar || assets.avatar_icon)
+          } 
+          alt="" 
+          onClick={() => setShowContactInfo(true)} 
+          style={{cursor: 'pointer'}}
+          onError={(e) => {
+            e.target.src = chatUser.isGroup ? assets.logo_icon : assets.avatar_icon;
+          }}
+        />
         <p onClick={() => setShowContactInfo(true)} style={{cursor: 'pointer'}}>
-          {chatUser.isGroup ? chatUser.groupData?.name : chatUser.userData?.name} 
+          {chatUser.isGroup 
+            ? (chatUser.groupData && chatUser.groupData.name ? chatUser.groupData.name : 'Group Chat') 
+            : (chatUser.userData && chatUser.userData.name ? chatUser.userData.name : 'Loading...')
+          } 
           {!chatUser.isGroup && chatUser.userData && Date.now()-chatUser.userData.lastSeen<=70000 ? <img className='dot' src={assets.green_dot} alt="" />: null}
         </p>
         <img src={assets.help_icon} alt="" className='help' />
@@ -290,7 +304,19 @@ const ChatBox = () => {
             </div>
             <div className="contact-info-content">
               <div className="contact-avatar">
-                <img src={chatUser.isGroup ? (chatUser.groupData?.avatar || assets.logo_icon) : (chatUser.userData?.avatar || assets.avatar_icon)} alt={chatUser.isGroup ? (chatUser.groupData?.name || 'Group') : (chatUser.userData?.name || 'User')} />
+                <img 
+                  src={chatUser.isGroup 
+                    ? (chatUser.groupData?.avatar || assets.logo_icon) 
+                    : (chatUser.userData?.avatar || assets.avatar_icon)
+                  } 
+                  alt={chatUser.isGroup 
+                    ? (chatUser.groupData?.name || 'Group') 
+                    : (chatUser.userData?.name || 'User')
+                  }
+                  onError={(e) => {
+                    e.target.src = chatUser.isGroup ? assets.logo_icon : assets.avatar_icon;
+                  }}
+                />
                 <div className="online-status">
                   {chatUser.isGroup ? (
                     <span className="status online">
@@ -311,7 +337,10 @@ const ChatBox = () => {
               <div className="contact-details">
                 <div className="detail-item">
                   <label>Name:</label>
-                  <span>{chatUser.isGroup ? chatUser.groupData?.name : chatUser.userData?.name}</span>
+                  <span>{chatUser.isGroup 
+                    ? (chatUser.groupData && chatUser.groupData.name ? chatUser.groupData.name : 'Group Chat') 
+                    : (chatUser.userData && chatUser.userData.name ? chatUser.userData.name : 'Loading...')
+                  }</span>
                 </div>
                 {chatUser.isGroup ? (
                   <>
@@ -422,7 +451,20 @@ const ChatBox = () => {
               </div>
               
               <div className="msg-avatar">
-                <img src={msg.sId === userData.id ? (userData?.avatar || assets.avatar_icon) : (chatUser.isGroup ? (chatUser.groupData?.avatar || assets.logo_icon) : (chatUser.userData?.avatar || assets.avatar_icon))} alt="" />
+                <img 
+                  src={msg.sId === userData.id 
+                    ? (userData?.avatar || assets.avatar_icon) 
+                    : (chatUser.isGroup 
+                      ? (chatUser.groupData?.avatar || assets.logo_icon) 
+                      : (chatUser.userData?.avatar || assets.avatar_icon)
+                    )
+                  } 
+                  alt=""
+                  onError={(e) => {
+                    e.target.src = msg.sId === userData.id ? assets.avatar_icon : 
+                      (chatUser.isGroup ? assets.logo_icon : assets.avatar_icon);
+                  }}
+                />
                 <p>{convertTimeStamp(msg.createdAt)}</p>
               </div>
             </div>
