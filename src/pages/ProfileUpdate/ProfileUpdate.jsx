@@ -46,29 +46,36 @@ const ProfileUpdate = () => {
 
       const docRef = doc(db, 'users', uid);
       
-      if(image){
-        const imageUrl = await upload(image);
-        setPrevImage(imageUrl.url || imageUrl);
-        await updateDoc(docRef,{
-          avatar: imageUrl.url || imageUrl,
+      if (image) {
+        // Upload new image
+        const uploadResult = await upload(image);
+        const imageUrl = uploadResult?.url || uploadResult;
+        
+        await updateDoc(docRef, {
+          avatar: imageUrl,
           bio: bio,
           name: name
-        })
+        });
+        
+        setPrevImage(imageUrl);
       } else {
-        await updateDoc(docRef,{
+        // Update without new image
+        await updateDoc(docRef, {
           bio: bio,
           name: name
-        })
+        });
       }
       
-      const snap = await getDoc(docRef)
-      setUserData(snap.data());
+      // Refresh user data
+      const updatedSnap = await getDoc(docRef);
+      setUserData(updatedSnap.data());
       
-      toast.success('Profile updated!')
-      navigate('/chat')
+      toast.success('Profile updated successfully!');
+      navigate('/chat');
+      
     } catch (error) {
-      console.error(error)
-      toast.error('Failed to update profile')
+      console.error('Profile update error:', error);
+      toast.error('Failed to update profile: ' + error.message);
     }
   }
 

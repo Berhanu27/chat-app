@@ -224,8 +224,8 @@ const LeftSidebar = () => {
                             <hr />
                             <p onClick={() => setShowMyProfile(true)}>View profile</p>
                             <hr />
-                            <p onClick={() => setShowCreateGroup(true)} className="create-group-menu-item">
-                                <span>👥</span> Create Group
+                            <p onClick={() => setShowCreateGroup(true)} style={{background: '#4CAF50', color: 'white', borderRadius: '5px', padding: '8px', fontWeight: 'bold'}}>
+                                👥 Create Group
                             </p>
                             <hr />
                             <p onClick={handleLogout}>Logout</p>
@@ -347,10 +347,27 @@ const LeftSidebar = () => {
                     <input ref={inputRef} onChange={inputHandler} type="text" placeholder='Search here..' />
                 </div>
                 
-                {/* Create Group Button */}
-                <div className="create-group-section">
-                    <button className="create-group-btn" onClick={() => setShowCreateGroup(true)}>
-                        <span className="group-icon">👥</span>
+                {/* Simple Create Group Button */}
+                <div style={{padding: '10px 5px'}}>
+                    <button 
+                        onClick={() => setShowCreateGroup(true)}
+                        style={{
+                            width: '100%',
+                            background: 'linear-gradient(135deg, #4CAF50 0%, #45a049 100%)',
+                            color: 'white',
+                            border: 'none',
+                            padding: '10px 15px',
+                            borderRadius: '25px',
+                            fontSize: '14px',
+                            fontWeight: '600',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '8px'
+                        }}
+                    >
+                        <span>👥</span>
                         Create Group
                     </button>
                 </div>
