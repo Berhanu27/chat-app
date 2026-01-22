@@ -177,7 +177,7 @@ const ChatBox = () => {
     }
   },[messagesId])
   return chatUser ? (
-    <div className={`chat-box${chatVisible? "":"hidden"}`}>
+    <div className='chat-box'>
       <div className="chat-user">
         <img src={assets.arrow_icon} alt="Back" className='back-btn' onClick={() => setChatVisible(false)} />
         <img src={chatUser.userData.avatar} alt="" />
@@ -222,7 +222,7 @@ const ChatBox = () => {
       </div>
     </div>
   ) : (
-    <div className={`chat-welcome ${chatVisible? "":"hidden"}`}>
+    <div className='chat-welcome'>
       <img src={assets.logo_icon} alt="" />
       <p>chat anytime, anywhere</p>
     </div>

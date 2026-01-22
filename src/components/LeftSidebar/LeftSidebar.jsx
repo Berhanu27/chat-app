@@ -95,7 +95,7 @@ const LeftSidebar = () => {
                 userData: uData
             })
             setShowSearch(false)
-            setChatVisible()
+            setChatVisible(true)
 
             
             
@@ -126,7 +126,8 @@ const LeftSidebar = () => {
                     userChatData.chatData[chatIndex].messageSeen = true;
                     await updateDoc(userChatsRef, { chatData: userChatData.chatData });
                 }
-            }setChatVisible(true);
+            }
+            setChatVisible(true);
         } catch (error) {
             console.error("Error updating message seen:", error);
         }
