@@ -76,6 +76,40 @@
   align-items: flex-end;
   gap: 10px;
   max-width: 70%;
+  position: relative;
+}
+
+.msg-wrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.delete-btn {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #ff4444;
+  color: white;
+  border: none;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+
+.s-msg:hover .delete-btn {
+  display: flex;
+}
+
+.delete-btn:hover {
+  background: #cc0000;
 }
 
 .smsg {
@@ -238,6 +272,14 @@
   .s-msg {
     max-width: 85%;
     gap: 8px;
+  }
+  
+  .delete-btn {
+    width: 18px;
+    height: 18px;
+    font-size: 12px;
+    top: -6px;
+    right: -6px;
   }
   
   .msg-avatar img {

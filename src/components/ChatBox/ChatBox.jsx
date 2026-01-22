@@ -24,16 +24,45 @@ const ChatBox = () => {
   const[input, setInput]=useState("");
   const messagesEndRef = useRef(null);
   const prevMessagesLength = useRef(0);
+  
+  // Delete message function
+  const deleteMessage = async (messageToDelete) => {
+    try {
+      if (!messagesId || !messageToDelete) return;
+      
+      // Filter out the message to delete
+      const updatedMessages = messages.filter(msg => 
+        msg.id !== messageToDelete.id && 
+        !(msg.sId === messageToDelete.sId && msg.createdAt === messageToDelete.createdAt)
+      );
+      
+      // Update Firebase with the filtered messages
+      await setDoc(doc(db, 'messages', messagesId), {
+        messages: updatedMessages.map(msg => {
+          const { id, ...messageWithoutId } = msg;
+          return messageWithoutId;
+        })
+      });
+      
+      toast.success("Message deleted");
+    } catch (error) {
+      console.error("Error deleting message:", error);
+      toast.error("Failed to delete message");
+    }
+  };
   const sendMessage = async () => {
     try {
       if (input && messagesId) {
         console.log("Sending message:", input, "to messagesId:", messagesId); // Debug log
+        const messageData = {
+          sId: userData.id,
+          text: input,
+          createdAt: Date.now(),
+          id: `${userData.id}_${Date.now()}_${Math.random()}`
+        };
+        
         await setDoc(doc(db, 'messages', messagesId), {
-          messages: arrayUnion({
-            sId: userData.id,
-            text: input,
-            createdAt: Date.now()
-          })
+          messages: arrayUnion(messageData)
         }, { merge: true })
         console.log("Message sent successfully"); // Debug log
         
@@ -76,7 +105,8 @@ const ChatBox = () => {
       if(uploadResult && messagesId){
         const messageData = {
           sId: userData.id,
-          createdAt: Date.now()
+          createdAt: Date.now(),
+          id: `${userData.id}_${Date.now()}_${Math.random()}`
         };
         
         // Add appropriate field based on file type
@@ -187,8 +217,24 @@ const ChatBox = () => {
       const unSub=onSnapshot(doc(db, 'messages',messagesId),(res)=>{
         console.log("Message document snapshot:", res.exists(), res.data()); // Debug log
         if(res.exists() && res.data().messages){
-          console.log("Setting messages:", res.data().messages); // Debug log
-          setMessages(res.data().messages)
+          const messagesData = res.data().messages;
+          // Ensure all messages have valid timestamps
+          const validMessages = messagesData.filter(msg => {
+            if (!msg.createdAt) {
+              console.warn("Message without timestamp:", msg);
+              return false;
+            }
+            return true;
+          }).map(msg => ({
+            ...msg,
+            // Ensure createdAt is always a valid timestamp
+            createdAt: msg.createdAt || Date.now(),
+            // Add unique ID for deletion
+            id: msg.id || `${msg.sId}_${msg.createdAt || Date.now()}_${Math.random()}`
+          }));
+          
+          console.log("Setting messages:", validMessages); // Debug log
+          setMessages(validMessages)
         } else {
           console.log("No messages found or document doesn't exist"); // Debug log
           setMessages([]);
@@ -215,31 +261,45 @@ const ChatBox = () => {
         {messages && messages.length > 0 ? (
           messages.map((msg, index) => (
             <div key={index} className={`s-msg ${msg.sId === userData.id ? 'smsg' : 'rmsg'}`}>
-              {msg.image ? (
-                <div className="msg-content">
-                  <img 
-                    className="msg-image" 
-                    src={msg.image} 
-                    alt="Shared image"
-                    onClick={() => downloadMedia(msg.image, `image_${index}.jpg`)}
-                    title="Click to download"
-                  />
-                </div>
-              ) : msg.video ? (
-                <div className="msg-content">
-                  <video 
-                    className="msg-video" 
-                    src={msg.video} 
-                    controls
-                    onClick={() => downloadMedia(msg.video, `video_${index}.mp4`)}
-                    title="Click to download"
+              <div className="msg-wrapper">
+                {msg.image ? (
+                  <div className="msg-content">
+                    <img 
+                      className="msg-image" 
+                      src={msg.image} 
+                      alt="Shared image"
+                      onClick={() => downloadMedia(msg.image, `image_${index}.jpg`)}
+                      title="Click to download"
+                    />
+                  </div>
+                ) : msg.video ? (
+                  <div className="msg-content">
+                    <video 
+                      className="msg-video" 
+                      src={msg.video} 
+                      controls
+                      onClick={() => downloadMedia(msg.video, `video_${index}.mp4`)}
+                      title="Click to download"
+                    >
+                      Your browser does not support the video tag.
+                    </video>
+                  </div>
+                ) : (
+                  <p className='msg'>{msg.text}</p>
+                )}
+                
+                {/* Delete button - only show for own messages */}
+                {msg.sId === userData.id && (
+                  <button 
+                    className="delete-btn"
+                    onClick={() => deleteMessage(msg)}
+                    title="Delete message"
                   >
-                    Your browser does not support the video tag.
-                  </video>
-                </div>
-              ) : (
-                <p className='msg'>{msg.text}</p>
-              )}
+                    ×
+                  </button>
+                )}
+              </div>
+              
               <div className="msg-avatar">
                 <img src={msg.sId === userData.id ? userData.avatar : chatUser.userData.avatar} alt="" />
                 <p>{convertTimeStamp(msg.createdAt)}</p>
