@@ -170,12 +170,15 @@ const LeftSidebar = () => {
                         </div>
                     ) : (
                     chatData && chatData.map((item, index) => (
-                            <div onClick={()=>setChat(item)} className={`friends ${chatUser && chatUser.messagesId === item.messagesId ? 'active' : ''}`} key={index}>
+                            <div onClick={()=>setChat(item)} className={`friends ${chatUser && chatUser.messagesId === item.messagesId ? 'active' : ''} ${!item.messageSeen ? 'unread' : ''}`} key={index}>
                                 <img src={item.userData.avatar} alt="" />
                                 <div>
                                     <p>{item.userData.name}</p>
                                     <span>{item.lastMessage || "No messages yet"}</span>
                                 </div>
+                                {!item.messageSeen && (
+                                    <div className="unread-indicator"></div>
+                                )}
                             </div>
                         ))
                     )}
