@@ -12,6 +12,7 @@ const LeftSidebar = () => {
     const { userData,chatData, chatUser,setChatUser, setMessagesId, setChatData, setMessages,chatVisible, setChatVisible } = useContext(AppContext);
     const [user, setUser] = useState(null)
     const [showSearch, setShowSearch] = useState(false)
+    const [showMyProfile, setShowMyProfile] = useState(false)
     const inputRef = useRef(null);
     
     const handleLogout = async () => {
@@ -148,16 +149,73 @@ const LeftSidebar = () => {
         <div className="ls">
             <div className="ls-top">
                 <div className="ls-nav">
-                    <img src={assets.logo} alt="" className='logo' />
+                    <img src={assets.logo} alt="" className='logo' onClick={() => setShowMyProfile(true)} style={{cursor: 'pointer'}} title="View my profile" />
                     <div className="menu">
                         <img src={assets.menu_icon} alt="" />
                         <div className="sub-menu">
                             <p onClick={() => navigate('/profile')}>Edit profile</p>
                             <hr />
+                            <p onClick={() => setShowMyProfile(true)}>View profile</p>
+                            <hr />
                             <p onClick={handleLogout}>Logout</p>
                         </div>
                     </div>
                 </div>
+
+                {/* My Profile Modal */}
+                {showMyProfile && userData && (
+                    <div className="profile-info-overlay" onClick={() => setShowMyProfile(false)}>
+                        <div className="profile-info-modal" onClick={(e) => e.stopPropagation()}>
+                            <div className="profile-info-header">
+                                <h3>My Profile</h3>
+                                <button className="close-btn" onClick={() => setShowMyProfile(false)}>×</button>
+                            </div>
+                            <div className="profile-info-content">
+                                <div className="profile-avatar">
+                                    <img src={userData.avatar} alt={userData.name} />
+                                    <div className="online-status">
+                                        <span className="status online">
+                                            <img src={assets.green_dot} alt="" />
+                                            Online (You)
+                                        </span>
+                                    </div>
+                                </div>
+                                <div className="profile-details">
+                                    <div className="detail-item">
+                                        <label>Name:</label>
+                                        <span>{userData.name}</span>
+                                    </div>
+                                    <div className="detail-item">
+                                        <label>Username:</label>
+                                        <span>@{userData.username}</span>
+                                    </div>
+                                    {userData.bio && (
+                                        <div className="detail-item">
+                                            <label>Bio:</label>
+                                            <span>{userData.bio}</span>
+                                        </div>
+                                    )}
+                                    <div className="detail-item">
+                                        <label>Member since:</label>
+                                        <span>{new Date(userData.id).toLocaleDateString()}</span>
+                                    </div>
+                                    <div className="detail-item">
+                                        <label>Last seen:</label>
+                                        <span>{new Date(userData.lastSeen).toLocaleString()}</span>
+                                    </div>
+                                </div>
+                                <div className="profile-actions">
+                                    <button className="edit-profile-btn" onClick={() => {
+                                        setShowMyProfile(false);
+                                        navigate('/profile');
+                                    }}>
+                                        Edit Profile
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
                 <div className="ls-search">
                     <img src={assets.search_icon} alt="Search" style={{display: 'block', minWidth: '18px'}} />
                     <input ref={inputRef} onChange={inputHandler} type="text" placeholder='Search here..' />
