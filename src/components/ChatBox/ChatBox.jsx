@@ -19,7 +19,7 @@ const ChatBox = () => {
           messages: arrayUnion({
             sId: userData.id,
             text: input,
-            createdAt: serverTimestamp()
+            createdAt: Date.now()
           })
         }, { merge: true })
         console.log("Message sent successfully"); // Debug log
@@ -62,7 +62,7 @@ const ChatBox = () => {
           messages: arrayUnion({
             sId: userData.id,
             image: fileUrl,
-            createdAt: serverTimestamp()
+            createdAt: Date.now()
           })
         }, { merge: true })
           const userIDs = [chatUser.rId, userData.id];
@@ -99,11 +99,24 @@ const ChatBox = () => {
   }
 
   const convertTimeStamp = (timestamp) => {
-    let data = timestamp.toDate();
+    let data;
+    if (timestamp && typeof timestamp.toDate === 'function') {
+      // Firebase Timestamp
+      data = timestamp.toDate();
+    } else if (timestamp) {
+      // Regular timestamp number
+      data = new Date(timestamp);
+    } else {
+      // Fallback to current time
+      data = new Date();
+    }
+    
     const hour = data.getHours();
-    const minute = data.getMinutes();
+    const minute = data.getMinutes().toString().padStart(2, '0');
     if (hour > 12) {
       return (hour - 12) + ":" + minute + " PM";
+    } else if (hour === 0) {
+      return "12:" + minute + " AM";
     } else {
       return hour + ":" + minute + " AM";
     }
