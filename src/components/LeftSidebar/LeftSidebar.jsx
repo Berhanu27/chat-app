@@ -82,6 +82,39 @@ const LeftSidebar = () => {
         }
     }
 
+    const removeContact = async (contactToRemove, event) => {
+        event.stopPropagation(); // Prevent opening the chat when clicking delete
+        
+        try {
+            const userChatsRef = doc(db, 'chats', userData.id);
+            const userChatsSnapshot = await getDoc(userChatsRef);
+            
+            if (userChatsSnapshot.exists()) {
+                const userChatData = userChatsSnapshot.data();
+                const updatedChatData = userChatData.chatData.filter(
+                    chat => chat.messagesId !== contactToRemove.messagesId
+                );
+                
+                await updateDoc(userChatsRef, { 
+                    chatData: updatedChatData 
+                });
+                
+                // If the removed contact was the active chat, clear it
+                if (chatUser && chatUser.messagesId === contactToRemove.messagesId) {
+                    setChatUser(null);
+                    setMessagesId(null);
+                    setMessages([]);
+                    setChatVisible(false);
+                }
+                
+                toast.success('Contact removed successfully');
+            }
+        } catch (error) {
+            console.error('Error removing contact:', error);
+            toast.error('Failed to remove contact');
+        }
+    };
+
     useEffect(()=>{
         const updatechatUserData=async()=>{
             if(chatUser && !chatUser.isGroup){
@@ -295,6 +328,14 @@ const LeftSidebar = () => {
                                         {!safeItem.messageSeen && (
                                             <div className="unread-indicator"></div>
                                         )}
+                                        {/* Remove Contact Button */}
+                                        <button 
+                                            className="remove-contact-btn"
+                                            onClick={(e) => removeContact(item, e)}
+                                            title="Remove contact"
+                                        >
+                                            ×
+                                        </button>
                                     </div>
                                 );
                             })
