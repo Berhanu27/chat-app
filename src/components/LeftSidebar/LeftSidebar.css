@@ -72,6 +72,39 @@
   color: #aaa;
 }
 
+/* Create Group Section */
+.create-group-section {
+  margin-top: 10px;
+  padding: 0 5px;
+}
+
+.create-group-btn {
+  width: 100%;
+  background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 25px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.2s;
+  box-shadow: 0 2px 8px rgba(76, 175, 80, 0.2);
+}
+
+.create-group-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+}
+
+.group-icon {
+  font-size: 16px;
+}
+
 .ls-list {
   margin-top: 15px;
 }
@@ -325,6 +358,15 @@
     right: 6px;
   }
   
+  .create-group-btn {
+    padding: 8px 12px;
+    font-size: 13px;
+  }
+  
+  .group-icon {
+    font-size: 14px;
+  }
+  
   /* Profile Modal - Tablet */
   .profile-info-modal {
     width: 85%;
@@ -439,6 +481,15 @@
     height: 8px;
     top: 4px;
     right: 4px;
+  }
+  
+  .create-group-btn {
+    padding: 6px 10px;
+    font-size: 12px;
+  }
+  
+  .group-icon {
+    font-size: 12px;
   }
   
   /* Profile Modal - Mobile */

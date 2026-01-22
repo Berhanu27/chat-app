@@ -44,27 +44,26 @@ const ProfileUpdate = () => {
         return
       }
 
-
-
       const docRef = doc(db, 'users', uid);
+      
       if(image){
-        const  imageUrl = await upload(image);
-        setPrevImage(imageUrl);
+        const imageUrl = await upload(image);
+        setPrevImage(imageUrl.url || imageUrl);
         await updateDoc(docRef,{
-          avatar:imageUrl,
-          bio:bio,
-          name:name
+          avatar: imageUrl.url || imageUrl,
+          bio: bio,
+          name: name
         })
-      }else{
+      } else {
         await updateDoc(docRef,{
-          bio:bio,
-          name:name
+          bio: bio,
+          name: name
         })
       }
-      const snap=await getDoc(docRef)
+      
+      const snap = await getDoc(docRef)
       setUserData(snap.data());
-      navigate('/chat');
-
+      
       toast.success('Profile updated!')
       navigate('/chat')
     } catch (error) {

@@ -344,6 +344,14 @@ const LeftSidebar = () => {
                     <img src={assets.search_icon} alt="Search" style={{display: 'block', minWidth: '18px'}} />
                     <input ref={inputRef} onChange={inputHandler} type="text" placeholder='Search here..' />
                 </div>
+                
+                {/* Create Group Button */}
+                <div className="create-group-section">
+                    <button className="create-group-btn" onClick={() => setShowCreateGroup(true)}>
+                        <span className="group-icon">👥</span>
+                        Create Group
+                    </button>
+                </div>
                 <div className="ls-list">
                     {showSearch && user ? (
                         <div onClick={addChat} className="friends add-user">
