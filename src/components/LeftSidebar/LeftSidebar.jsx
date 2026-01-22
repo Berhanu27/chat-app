@@ -46,7 +46,6 @@ const LeftSidebar = () => {
                 const userRef = collection(db, 'users');
                 const q = query(userRef, where("username", "==", input.toLowerCase()))
                 const querySnapshot = await getDocs(q);
-                console.log("Search results:", querySnapshot.docs.map(d => d.data()));
                 if (!querySnapshot.empty && querySnapshot.docs[0].data().id !== userData.id) {
                     let userExist = false
                     chatData && chatData.map((user) => {
@@ -354,7 +353,7 @@ const LeftSidebar = () => {
                 )}
                 <div className="ls-search">
                     <img src={assets.search_icon} alt="Search" style={{display: 'block', minWidth: '18px'}} />
-                    <input ref={inputRef} onChange={inputHandler} type="text" placeholder='Search users or type "group" to create group..' />
+                    <input ref={inputRef} onChange={inputHandler} type="text" placeholder='Search here..' />
                 </div>
                 <div className="ls-list">
                     {showSearch && user ? (
@@ -418,9 +417,15 @@ const LeftSidebar = () => {
                                     console.error(error);
                                 }
                             }
-                        }} className="friends add-user">
+                        }} className={`friends add-user ${user.isCreateGroup ? 'create-group-option' : ''}`} 
+                        style={user.isCreateGroup ? {
+                            background: 'linear-gradient(135deg, #4CAF50 0%, #45a049 100%)',
+                            color: 'white',
+                            border: '2px solid #4CAF50',
+                            fontWeight: 'bold'
+                        } : {}}>
                             <img src={user.avatar} alt="" />
-                            <p>{user.name}</p>
+                            <p style={user.isCreateGroup ? {color: 'white', fontWeight: 'bold'} : {}}>{user.name}</p>
                         </div>
                     ) : (
                     chatData && chatData.map((item, index) => (
