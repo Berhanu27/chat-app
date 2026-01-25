@@ -1,6 +1,7 @@
 import './ChatBox.css'
 import assets from '../../assets/assets'
 import { useContext, useEffect, useState, useRef } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { AppContext } from '../../context/AppContext'
 import { arrayUnion, doc, getDoc, onSnapshot, setDoc, updateDoc } from 'firebase/firestore'
 import { db } from '../../config/Firebase'
@@ -17,6 +18,91 @@ const downloadMedia = (url, filename) => {
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
+};
+
+// Function to make links clickable in messages
+const renderMessageWithLinks = (text, navigate) => {
+  if (!text) return text;
+  
+  // Regular expression to detect URLs
+  const urlRegex = /(https?:\/\/[^\s]+)/g;
+  
+  // Split text by URLs and create clickable links
+  const parts = text.split(urlRegex);
+  
+  return parts.map((part, index) => {
+    if (urlRegex.test(part)) {
+      // Check if it's a group invite link
+      const isGroupInvite = part.includes('/join-group/');
+      
+      if (isGroupInvite) {
+        // Extract invite code from the URL - more robust extraction
+        const inviteCodeMatch = part.match(/\/join-group\/([^/?&#\s]+)/);
+        const inviteCode = inviteCodeMatch ? inviteCodeMatch[1] : null;
+        
+        console.log('Processing group invite link:', part);
+        console.log('Extracted invite code:', inviteCode);
+        console.log('Full match result:', inviteCodeMatch);
+        
+        return (
+          <span
+            key={index}
+            className="message-link group-invite-link"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              console.log('=== GROUP INVITE LINK CLICKED ===');
+              console.log('Invite code:', inviteCode);
+              console.log('Full URL part:', part);
+              console.log('Target route:', `/join-group/${inviteCode}`);
+              console.log('Current location before navigation:', window.location.href);
+              
+              if (inviteCode) {
+                try {
+                  console.log('Attempting navigation with React Router...');
+                  navigate(`/join-group/${inviteCode}`);
+                  console.log('Navigation called successfully');
+                  
+                  // Add a small delay to check if navigation worked
+                  setTimeout(() => {
+                    console.log('Location after navigation attempt:', window.location.href);
+                    if (!window.location.pathname.includes('/join-group/')) {
+                      console.warn('React Router navigation may have failed, trying window.location');
+                      window.location.href = `/join-group/${inviteCode}`;
+                    }
+                  }, 100);
+                  
+                } catch (error) {
+                  console.error('Navigate failed, using window.location:', error);
+                  window.location.href = `/join-group/${inviteCode}`;
+                }
+              } else {
+                console.error('No invite code found');
+                toast.error('Invalid invite link');
+              }
+            }}
+          >
+            🔗 Join Group
+          </span>
+        );
+      } else {
+        // Regular external link
+        return (
+          <a 
+            key={index}
+            href={part}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="message-link"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {part}
+          </a>
+        );
+      }
+    }
+    return part;
+  });
 };
 
 // Get file icon based on file extension
@@ -84,6 +170,7 @@ const getFileIcon = (fileName) => {
 };
 
 const ChatBox = () => {
+  const navigate = useNavigate();
   const { userData, messagesId, chatUser, messages, setMessages, setChatVisible, appSettings } = useContext(AppContext)
   const[input, setInput]=useState("");
   const[showContactInfo, setShowContactInfo]=useState(false);
@@ -193,7 +280,10 @@ const ChatBox = () => {
         }, { merge: true })
         console.log("Message sent successfully"); // Debug log
         
-        const userIDs = [chatUser.rId, userData.id];
+        const userIDs = chatUser.isGroup 
+          ? (chatUser.groupData?.members || [])
+          : [chatUser.rId, userData.id];
+        
         userIDs.forEach(async (id) => {
           const userChatsRef = doc(db, 'chats', id)
           const userChatsSnapshot = await getDoc(userChatsRef);
@@ -203,6 +293,7 @@ const ChatBox = () => {
             if (chatIndex !== -1) {
               userChatData.chatData[chatIndex].lastMessage = input.slice(0, 30);
               userChatData.chatData[chatIndex].updatedAt = Date.now();
+              userChatData.chatData[chatIndex].updateAt = Date.now(); // Add both for compatibility
               if (userChatData.chatData[chatIndex].rId === userData.id) {
                 userChatData.chatData[chatIndex].messageSeen = false;
               }
@@ -277,7 +368,9 @@ const ChatBox = () => {
           messages: arrayUnion(messageData)
         }, { merge: true })
         
-          const userIDs = [chatUser.rId, userData.id];
+          const userIDs = chatUser.isGroup 
+            ? (chatUser.groupData?.members || [])
+            : [chatUser.rId, userData.id];
         userIDs.forEach(async (id) => {
           const userChatsRef = doc(db, 'chats', id)
           const userChatsSnapshot = await getDoc(userChatsRef);
@@ -298,6 +391,7 @@ const ChatBox = () => {
               
               userChatData.chatData[chatIndex].lastMessage = lastMessage;
               userChatData.chatData[chatIndex].updatedAt = Date.now();
+              userChatData.chatData[chatIndex].updateAt = Date.now(); // Add both for compatibility
               if (userChatData.chatData[chatIndex].rId === userData.id) {
                 userChatData.chatData[chatIndex].messageSeen = false;
               }
@@ -456,9 +550,9 @@ const ChatBox = () => {
   return chatUser ? (
     <div className='chat-box'>
       <div className="chat-user">
-        <img src={assets.arrow_icon} alt="Back" className='back-btn' onClick={() => setChatVisible(false)} />
+        <img src={assets.arrow_icon} alt="Back" className='back-btn arrow-left' onClick={() => setChatVisible(false)} />
         <img 
-          src={chatUser.userData?.avatar || assets.avatar_icon} 
+          src={chatUser.isGroup ? (chatUser.groupData?.avatar || assets.avatar_icon) : (chatUser.userData?.avatar || assets.avatar_icon)} 
           alt="" 
           onClick={() => setShowContactInfo(true)} 
           style={{cursor: 'pointer'}}
@@ -467,19 +561,33 @@ const ChatBox = () => {
           }}
         />
         <p onClick={() => setShowContactInfo(true)} style={{cursor: 'pointer'}}>
-          <span className="contact-name">{chatUser.userData?.name || 'Loading...'}</span>
-          {chatUser.userData && Date.now()-chatUser.userData.lastSeen<=70000 ? (
-            <span className="online-status-text">
-              <img className='dot' src={assets.green_dot} alt="" />
-              Online
+          <span className="contact-name">
+            {chatUser.isGroup ? (chatUser.groupData?.name || 'Group') : (chatUser.userData?.name || 'Loading...')}
+          </span>
+          {chatUser.isGroup ? (
+            <span className="group-status-text">
+              👥 {chatUser.groupData?.members?.length || 0} members
             </span>
           ) : (
-            <span className="offline-status-text">
-              Last seen {chatUser.userData ? new Date(chatUser.userData.lastSeen).toLocaleTimeString() : 'Unknown'}
-            </span>
+            chatUser.userData && Date.now()-chatUser.userData.lastSeen<=70000 ? (
+              <span className="online-status-text">
+                <img className='dot' src={assets.green_dot} alt="" />
+                Online
+              </span>
+            ) : (
+              <span className="offline-status-text">
+                Last seen {chatUser.userData ? new Date(chatUser.userData.lastSeen).toLocaleTimeString() : 'Unknown'}
+              </span>
+            )
           )}
         </p>
-        <img src={assets.help_icon} alt="" className='help' />
+        <div className="top-right-home-btn" onClick={() => setChatVisible(false)}>
+          <img 
+            src={assets.arrow_icon} 
+            alt="Back to Home" 
+            className="top-right-arrow"
+          />
+        </div>
       </div>
 
       {/* Contact Info Modal */}
@@ -487,57 +595,87 @@ const ChatBox = () => {
         <div className="contact-info-overlay" onClick={() => setShowContactInfo(false)}>
           <div className="contact-info-modal" onClick={(e) => e.stopPropagation()}>
             <div className="contact-info-header">
-              <h3>Contact Info</h3>
+              <h3>{chatUser.isGroup ? 'Group Info' : 'Contact Info'}</h3>
               <button className="close-btn" onClick={() => setShowContactInfo(false)}>×</button>
             </div>
             <div className="contact-info-content">
               <div className="contact-avatar">
                 <img 
-                  src={chatUser.userData?.avatar || assets.avatar_icon} 
-                  alt={chatUser.userData?.name || 'User'}
+                  src={chatUser.isGroup ? (chatUser.groupData?.avatar || assets.avatar_icon) : (chatUser.userData?.avatar || assets.avatar_icon)} 
+                  alt={chatUser.isGroup ? (chatUser.groupData?.name || 'Group') : (chatUser.userData?.name || 'User')}
                   onError={(e) => {
                     e.target.src = assets.avatar_icon;
                   }}
                 />
                 <div className="online-status">
-                  {chatUser.userData && Date.now()-chatUser.userData.lastSeen<=70000 ? (
-                    <span className="status online">
-                      <img src={assets.green_dot} alt="" />
-                      Online
+                  {chatUser.isGroup ? (
+                    <span className="status group">
+                      👥 {chatUser.groupData?.members?.length || 0} members
                     </span>
                   ) : (
-                    <span className="status offline">
-                      Last seen {chatUser.userData ? new Date(chatUser.userData.lastSeen).toLocaleString() : 'Unknown'}
-                    </span>
+                    chatUser.userData && Date.now()-chatUser.userData.lastSeen<=70000 ? (
+                      <span className="status online">
+                        <img src={assets.green_dot} alt="" />
+                        Online
+                      </span>
+                    ) : (
+                      <span className="status offline">
+                        Last seen {chatUser.userData ? new Date(chatUser.userData.lastSeen).toLocaleString() : 'Unknown'}
+                      </span>
+                    )
                   )}
                 </div>
               </div>
               <div className="contact-details">
                 <div className="detail-item">
                   <label>Name:</label>
-                  <span>{chatUser.userData?.name || 'Loading...'}</span>
+                  <span>{chatUser.isGroup ? (chatUser.groupData?.name || 'Group') : (chatUser.userData?.name || 'Loading...')}</span>
                 </div>
-                <div className="detail-item">
-                  <label>Username:</label>
-                  <span>@{chatUser.userData?.username}</span>
-                </div>
-                {chatUser.userData?.bio && (
+                {!chatUser.isGroup && (
                   <div className="detail-item">
-                    <label>Bio:</label>
-                    <span>{chatUser.userData.bio}</span>
+                    <label>Username:</label>
+                    <span>@{chatUser.userData?.username}</span>
                   </div>
                 )}
-                <div className="detail-item">
-                  <label>Member since:</label>
-                  <span>
-                    {chatUser.userData && chatUser.userData.createdAt 
-                      ? new Date(chatUser.userData.createdAt).toLocaleDateString()
-                      : chatUser.userData && chatUser.userData.lastSeen 
-                        ? new Date(chatUser.userData.lastSeen).toLocaleDateString()
-                        : 'Recently joined'
-                    }
-                  </span>
-                </div>
+                {chatUser.isGroup ? (
+                  <>
+                    {chatUser.groupData?.description && (
+                      <div className="detail-item">
+                        <label>Description:</label>
+                        <span>{chatUser.groupData.description}</span>
+                      </div>
+                    )}
+                    <div className="detail-item">
+                      <label>Created:</label>
+                      <span>
+                        {chatUser.groupData?.createdAt 
+                          ? new Date(chatUser.groupData.createdAt).toLocaleDateString()
+                          : 'Unknown'
+                        }
+                      </span>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    {chatUser.userData?.bio && (
+                      <div className="detail-item">
+                        <label>Bio:</label>
+                        <span>{chatUser.userData.bio}</span>
+                      </div>
+                    )}
+                    <div className="detail-item">
+                      <label>Member since:</label>
+                      <span>
+                        {chatUser.userData && chatUser.userData.createdAt 
+                          ? new Date(chatUser.userData.createdAt).toLocaleDateString()
+                          : chatUser.userData && chatUser.userData.lastSeen 
+                            ? new Date(chatUser.userData.lastSeen).toLocaleDateString()
+                            : 'Recently joined'
+                        }
+                      </span>
+                    </div>
+                  </>
+                )}
               </div>
             </div>
           </div>
@@ -615,7 +753,7 @@ const ChatBox = () => {
                   ) : (
                     <div className="message-text-container">
                       <p className='msg'>
-                        {msg.text}
+                        {renderMessageWithLinks(msg.text, navigate)}
                         {msg.edited && <span className="edited-indicator"> (edited)</span>}
                       </p>
                     </div>

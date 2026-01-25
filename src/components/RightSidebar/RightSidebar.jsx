@@ -110,12 +110,28 @@ const RightSidebar = () => {
   return chatUser? (
     <div className='rs'>
       <div className="rs-profile">
-        <img src={chatUser.userData?.avatar || assets.avatar_icon} alt="" />
+        <img 
+          src={chatUser.isGroup 
+            ? (chatUser.groupData?.avatar || assets.avatar_icon) 
+            : (chatUser.userData?.avatar || assets.avatar_icon)
+          } 
+          alt="" 
+        />
         <h3>
-          {chatUser.userData.name}
-          {Date.now()-chatUser.userData.lastSeen<=70000 ? <img src={assets.green_dot} className='dot' alt="" /> : null}
+          {chatUser.isGroup 
+            ? (chatUser.groupData?.name || 'Group')
+            : (chatUser.userData?.name || 'User')
+          }
+          {!chatUser.isGroup && chatUser.userData && Date.now()-chatUser.userData.lastSeen<=70000 ? 
+            <img src={assets.green_dot} className='dot' alt="" /> : null
+          }
         </h3>
-        <p>{chatUser.userData.bio}</p>
+        <p>
+          {chatUser.isGroup 
+            ? (chatUser.groupData?.description || `${chatUser.groupData?.members?.length || 0} members`)
+            : (chatUser.userData?.bio || '')
+          }
+        </p>
       </div>
       <hr />
       <div className="rs-media">

@@ -80,8 +80,11 @@ const AppContextProvider = (props) => {
                 const tempData=[];
                 for(const item of chatItems){
                     try {
-                        // Only process regular user chats, skip any groups
-                        if (!item.isGroup) {
+                        if (item.isGroup) {
+                            // For groups, just add the item as-is since groupData is already included
+                            tempData.push(item);
+                        } else {
+                            // For individual chats, fetch user data
                             const userRef=doc(db, "users", item.rId);
                             const userSnap=await getDoc(userRef);
                             const fetchedUserData=userSnap.data();
@@ -93,7 +96,9 @@ const AppContextProvider = (props) => {
                     } catch (error) {
                         console.error("Error loading chat item:", error);
                         // Add item with null userData to prevent crashes
-                        if (!item.isGroup) {
+                        if (item.isGroup) {
+                            tempData.push(item);
+                        } else {
                             tempData.push({
                                 ...item,
                                 userData: null
@@ -101,7 +106,7 @@ const AppContextProvider = (props) => {
                         }
                     }
                 }
-                setChatData(tempData.sort((a,b)=>b.updateAt-a.updateAt))
+                setChatData(tempData.sort((a,b)=>(b.updateAt || b.updatedAt || 0)-(a.updateAt || a.updatedAt || 0)))
             })
             return()=>{
                 unSub();
@@ -117,7 +122,10 @@ const AppContextProvider = (props) => {
         loadUserData,
         messages,setMessages,
         messagesId,setMessagesId,
-        chatUser, setChatUser,chatVisible,setChatVisible,
+        chatUser,
+        setChatUser,
+        chatVisible,
+        setChatVisible,
         isLoading,
         appSettings,
         setAppSettings
