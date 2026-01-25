@@ -15,6 +15,14 @@ const AppContextProvider = (props) => {
     const[chatUser, setChatUser]=useState(null)
     const [chatVisible, setChatVisible]=useState(false)
     const [isLoading, setIsLoading] = useState(true)
+    const [appSettings, setAppSettings] = useState({
+        soundNotifications: true,
+        browserNotifications: true,
+        showOnlineStatus: true,
+        readReceipts: true,
+        autoDownloadMedia: true,
+        darkMode: false
+    })
 
 
     const loadUserData= async(uid)=>{
@@ -110,8 +118,9 @@ const AppContextProvider = (props) => {
         messages,setMessages,
         messagesId,setMessagesId,
         chatUser, setChatUser,chatVisible,setChatVisible,
-        isLoading
-
+        isLoading,
+        appSettings,
+        setAppSettings
     };
     
     return (

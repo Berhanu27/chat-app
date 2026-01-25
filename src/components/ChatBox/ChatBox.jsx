@@ -84,9 +84,12 @@ const getFileIcon = (fileName) => {
 };
 
 const ChatBox = () => {
-  const { userData, messagesId, chatUser, messages, setMessages, setChatVisible } = useContext(AppContext)
+  const { userData, messagesId, chatUser, messages, setMessages, setChatVisible, appSettings } = useContext(AppContext)
   const[input, setInput]=useState("");
   const[showContactInfo, setShowContactInfo]=useState(false);
+  const[activeMessageDropdown, setActiveMessageDropdown]=useState(null);
+  const[editingMessage, setEditingMessage]=useState(null);
+  const[editText, setEditText]=useState("");
   const messagesEndRef = useRef(null);
   const prevMessagesLength = useRef(0);
   
@@ -113,6 +116,65 @@ const ChatBox = () => {
     } catch (error) {
       console.error("Error deleting message:", error);
       toast.error("Failed to delete message");
+    }
+  };
+
+  // Edit message function
+  const editMessage = async (messageToEdit, newText) => {
+    try {
+      if (!messagesId || !messageToEdit || !newText.trim()) return;
+      
+      // Update the message in the messages array
+      const updatedMessages = messages.map(msg => {
+        if (msg.id === messageToEdit.id) {
+          return {
+            ...msg,
+            text: newText.trim(),
+            edited: true,
+            editedAt: Date.now()
+          };
+        }
+        return msg;
+      });
+      
+      // Update Firebase with the modified messages
+      await setDoc(doc(db, 'messages', messagesId), {
+        messages: updatedMessages.map(msg => {
+          const { id, ...messageWithoutId } = msg;
+          return messageWithoutId;
+        })
+      });
+      
+      toast.success("Message edited");
+      setEditingMessage(null);
+      setEditText("");
+    } catch (error) {
+      console.error("Error editing message:", error);
+      toast.error("Failed to edit message");
+    }
+  };
+
+  const toggleMessageDropdown = (messageId, event) => {
+    event.stopPropagation();
+    setActiveMessageDropdown(activeMessageDropdown === messageId ? null : messageId);
+  };
+
+  const startEditMessage = (message) => {
+    setEditingMessage(message.id);
+    setEditText(message.text || "");
+    setActiveMessageDropdown(null);
+  };
+
+  const cancelEdit = () => {
+    setEditingMessage(null);
+    setEditText("");
+  };
+
+  const saveEdit = (message) => {
+    if (editText.trim() && editText.trim() !== message.text) {
+      editMessage(message, editText);
+    } else {
+      cancelEdit();
     }
   };
   const sendMessage = async () => {
@@ -298,11 +360,13 @@ const ChatBox = () => {
     if (messages.length > prevMessagesLength.current && prevMessagesLength.current > 0) {
       const latestMessage = messages[messages.length - 1];
       if (latestMessage && latestMessage.sId !== userData?.id) {
-        // Play sound notification
-        playNotificationSound();
+        // Play sound notification only if enabled
+        if (appSettings?.soundNotifications) {
+          playNotificationSound();
+        }
         
-        // Show browser notification if permission granted
-        if (chatUser) {
+        // Show browser notification only if enabled
+        if (appSettings?.browserNotifications && chatUser) {
           const messageText = latestMessage.text || 'Sent an image';
           const senderName = chatUser.userData?.name;
           const senderAvatar = chatUser.userData?.avatar || assets.avatar_icon;
@@ -322,6 +386,18 @@ const ChatBox = () => {
   useEffect(() => {
     requestNotificationPermission();
   }, [])
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (activeMessageDropdown && !event.target.closest('.message-options')) {
+        setActiveMessageDropdown(null);
+      }
+    };
+
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, [activeMessageDropdown])
 
   useEffect(()=>{
     if(messagesId && messagesId.length > 0){
@@ -391,8 +467,17 @@ const ChatBox = () => {
           }}
         />
         <p onClick={() => setShowContactInfo(true)} style={{cursor: 'pointer'}}>
-          {chatUser.userData?.name || 'Loading...'} 
-          {chatUser.userData && Date.now()-chatUser.userData.lastSeen<=70000 ? <img className='dot' src={assets.green_dot} alt="" />: null}
+          <span className="contact-name">{chatUser.userData?.name || 'Loading...'}</span>
+          {chatUser.userData && Date.now()-chatUser.userData.lastSeen<=70000 ? (
+            <span className="online-status-text">
+              <img className='dot' src={assets.green_dot} alt="" />
+              Online
+            </span>
+          ) : (
+            <span className="offline-status-text">
+              Last seen {chatUser.userData ? new Date(chatUser.userData.lastSeen).toLocaleTimeString() : 'Unknown'}
+            </span>
+          )}
         </p>
         <img src={assets.help_icon} alt="" className='help' />
       </div>
@@ -444,7 +529,14 @@ const ChatBox = () => {
                 )}
                 <div className="detail-item">
                   <label>Member since:</label>
-                  <span>{chatUser.userData ? new Date(chatUser.userData.id).toLocaleDateString() : 'Unknown'}</span>
+                  <span>
+                    {chatUser.userData && chatUser.userData.createdAt 
+                      ? new Date(chatUser.userData.createdAt).toLocaleDateString()
+                      : chatUser.userData && chatUser.userData.lastSeen 
+                        ? new Date(chatUser.userData.lastSeen).toLocaleDateString()
+                        : 'Recently joined'
+                    }
+                  </span>
                 </div>
               </div>
             </div>
@@ -499,18 +591,69 @@ const ChatBox = () => {
                     </div>
                   </div>
                 ) : (
-                  <p className='msg'>{msg.text}</p>
+                  editingMessage === msg.id ? (
+                    <div className="edit-message-container">
+                      <input
+                        type="text"
+                        value={editText}
+                        onChange={(e) => setEditText(e.target.value)}
+                        onKeyPress={(e) => {
+                          if (e.key === 'Enter') {
+                            saveEdit(msg);
+                          } else if (e.key === 'Escape') {
+                            cancelEdit();
+                          }
+                        }}
+                        className="edit-message-input"
+                        autoFocus
+                      />
+                      <div className="edit-message-actions">
+                        <button onClick={() => saveEdit(msg)} className="save-edit-btn">✓</button>
+                        <button onClick={cancelEdit} className="cancel-edit-btn">✕</button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="message-text-container">
+                      <p className='msg'>
+                        {msg.text}
+                        {msg.edited && <span className="edited-indicator"> (edited)</span>}
+                      </p>
+                    </div>
+                  )
                 )}
                 
-                {/* Delete button - only show for own messages */}
+                {/* Message Options Dropdown - only show for own messages */}
                 {msg.sId === userData.id && (
-                  <button 
-                    className="delete-btn"
-                    onClick={() => deleteMessage(msg)}
-                    title="Delete message"
-                  >
-                    ×
-                  </button>
+                  <div className="message-options">
+                    <button 
+                      className="message-options-btn"
+                      onClick={(e) => toggleMessageDropdown(msg.id, e)}
+                      title="Message options"
+                    >
+                      ⋮
+                    </button>
+                    {activeMessageDropdown === msg.id && (
+                      <div className="message-dropdown-menu">
+                        {msg.text && (
+                          <button 
+                            className="message-dropdown-item edit"
+                            onClick={() => startEditMessage(msg)}
+                          >
+                            ✏️ Edit Message
+                          </button>
+                        )}
+                        <button 
+                          className="message-dropdown-item delete"
+                          onClick={() => {
+                            deleteMessage(msg);
+                            setActiveMessageDropdown(null);
+                          }}
+                        >
+                          🗑️ Delete Message
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 )}
               </div>
               

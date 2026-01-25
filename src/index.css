@@ -37,3 +37,81 @@ html, body, #root {
     font-size: 12px;
   }
 }
+
+/* Dark Mode Styles */
+body.dark-mode {
+  background-color: #1a1a1a;
+  color: #ffffff;
+}
+
+body.dark-mode .ls {
+  background: #2d2d2d;
+}
+
+body.dark-mode .chat-box {
+  background: #1e1e1e;
+  color: #ffffff;
+}
+
+body.dark-mode .chat-user {
+  background: #2d2d2d;
+  border-bottom-color: #404040;
+}
+
+body.dark-mode .chat-input {
+  background: #2d2d2d;
+  border-top-color: #404040;
+}
+
+body.dark-mode .chat-input input {
+  background: transparent;
+  color: #ffffff;
+}
+
+body.dark-mode .ls-search {
+  background: #404040;
+}
+
+body.dark-mode .ls-search input {
+  background: transparent;
+  color: #ffffff;
+}
+
+body.dark-mode .ls-search input::placeholder {
+  color: #aaa;
+}
+
+body.dark-mode .friends {
+  color: #ffffff;
+}
+
+body.dark-mode .friends:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+body.dark-mode .profile-info-modal,
+body.dark-mode .contact-info-modal {
+  background: #2d2d2d;
+  color: #ffffff;
+}
+
+body.dark-mode .profile-info-header,
+body.dark-mode .contact-info-header {
+  background: linear-gradient(135deg, #404040 0%, #2d2d2d 100%);
+}
+
+body.dark-mode .dropdown-menu,
+body.dark-mode .message-dropdown-menu {
+  background: #404040;
+  border-color: #555;
+}
+
+body.dark-mode .dropdown-item,
+body.dark-mode .message-dropdown-item {
+  color: #ffffff;
+}
+
+body.dark-mode .dropdown-item:hover,
+body.dark-mode .message-dropdown-item:hover {
+  background: #555;
+}

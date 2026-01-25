@@ -95,6 +95,214 @@
   flex-direction: column;
 }
 
+/* Message Options Dropdown */
+.message-options {
+  position: relative;
+}
+
+.message-options-btn {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.1);
+  color: #666;
+  border: none;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  transition: all 0.2s;
+}
+
+.message-options-btn:hover {
+  background: rgba(0, 0, 0, 0.2);
+  transform: scale(1.1);
+}
+
+.s-msg:hover .message-options-btn {
+  display: flex;
+}
+
+.message-dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  min-width: 130px;
+  overflow: hidden;
+}
+
+.message-dropdown-item {
+  width: 100%;
+  padding: 8px 12px;
+  border: none;
+  background: none;
+  text-align: left;
+  font-size: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: background 0.2s;
+  color: #333;
+}
+
+.message-dropdown-item:hover {
+  background: #f5f5f5;
+}
+
+.message-dropdown-item.edit:hover {
+  background: #e3f2fd;
+  color: #1976d2;
+}
+
+.message-dropdown-item.delete:hover {
+  background: #ffe6e6;
+  color: #d32f2f;
+}
+
+/* Edit Message Styles */
+.edit-message-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #f8f9fa;
+  padding: 8px;
+  border-radius: 12px;
+  border: 1px solid #ddd;
+}
+
+.edit-message-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 14px;
+  color: #333;
+  padding: 4px;
+}
+
+.edit-message-actions {
+  display: flex;
+  gap: 4px;
+}
+
+.save-edit-btn,
+.cancel-edit-btn {
+  width: 24px;
+  height: 24px;
+  border: none;
+  border-radius: 50%;
+  font-size: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.save-edit-btn {
+  background: #4caf50;
+  color: white;
+}
+
+.save-edit-btn:hover {
+  background: #45a049;
+}
+
+.cancel-edit-btn {
+  background: #f44336;
+  color: white;
+}
+
+.cancel-edit-btn:hover {
+  background: #da190b;
+}
+
+.message-text-container {
+  position: relative;
+}
+
+.edited-indicator {
+  font-size: 10px;
+  color: #666;
+  font-style: italic;
+  opacity: 0.7;
+}
+
+/* Mobile responsive for message options */
+@media (max-width: 768px) {
+  .message-options-btn {
+    width: 22px;
+    height: 22px;
+    font-size: 16px;
+    top: -6px;
+    right: -6px;
+  }
+  
+  .message-dropdown-menu {
+    min-width: 120px;
+  }
+  
+  .message-dropdown-item {
+    padding: 10px 12px;
+    font-size: 11px;
+  }
+  
+  .edit-message-input {
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 480px) {
+  .message-options-btn {
+    display: flex; /* Always show on mobile */
+    width: 20px;
+    height: 20px;
+    font-size: 14px;
+    top: -4px;
+    right: -4px;
+  }
+  
+  .message-dropdown-menu {
+    min-width: 110px;
+    left: 0;
+    transform: none;
+  }
+  
+  .message-dropdown-item {
+    padding: 8px 10px;
+    font-size: 10px;
+  }
+  
+  .edit-message-container {
+    padding: 6px;
+  }
+  
+  .edit-message-input {
+    font-size: 12px;
+  }
+  
+  .save-edit-btn,
+  .cancel-edit-btn {
+    width: 20px;
+    height: 20px;
+    font-size: 10px;
+  }
+}
+
+/* Legacy Delete Button (keeping for backward compatibility) */
 .delete-btn {
   position: absolute;
   top: -8px;
@@ -851,5 +1059,74 @@
     width: 28px;
     height: 28px;
     font-size: 12px;
+  }
+}
+/* Enhanced Online Status in Chat Header */
+.chat-user p {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+}
+
+.contact-name {
+  font-size: 16px;
+  font-weight: 600;
+  color: #fff;
+}
+
+.online-status-text {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: #4CAF50;
+  font-weight: 500;
+}
+
+.online-status-text .dot {
+  width: 8px;
+  height: 8px;
+  animation: pulse-green 2s infinite;
+}
+
+.offline-status-text {
+  font-size: 11px;
+  color: #aaa;
+  font-weight: 400;
+}
+
+@keyframes pulse-green {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.1);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Mobile responsive for status text */
+@media (max-width: 480px) {
+  .contact-name {
+    font-size: 14px;
+  }
+  
+  .online-status-text {
+    font-size: 11px;
+  }
+  
+  .offline-status-text {
+    font-size: 10px;
+  }
+  
+  .online-status-text .dot {
+    width: 6px;
+    height: 6px;
   }
 }

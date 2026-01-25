@@ -57,6 +57,9 @@
   flex-shrink: 0;
   display: block !important;
   min-width: 18px;
+  /* Edge compatibility */
+  -ms-flex-negative: 0;
+  -webkit-flex-shrink: 0;
 }
 
 .ls-search input {
@@ -1000,7 +1003,125 @@
   margin: 0;
   color: #888;
 }
-/* Remove Contact Button */
+/* Contact Options Dropdown */
+.contact-options {
+  position: relative;
+}
+
+.options-btn {
+  position: absolute;
+  top: 50%;
+  right: 8px;
+  transform: translateY(-50%);
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  z-index: 10;
+}
+
+.options-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-50%) scale(1.1);
+}
+
+.friends:hover .options-btn {
+  display: flex;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  min-width: 140px;
+  overflow: hidden;
+}
+
+.dropdown-item {
+  width: 100%;
+  padding: 8px 12px;
+  border: none;
+  background: none;
+  text-align: left;
+  font-size: 13px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: background 0.2s;
+  color: #333;
+}
+
+.dropdown-item:hover {
+  background: #f5f5f5;
+}
+
+.dropdown-item.remove:hover {
+  background: #ffe6e6;
+  color: #d32f2f;
+}
+
+.dropdown-item.block:hover {
+  background: #fff3e0;
+  color: #f57c00;
+}
+
+/* Mobile responsive for contact options */
+@media (max-width: 768px) {
+  .options-btn {
+    width: 26px;
+    height: 26px;
+    font-size: 18px;
+    right: 6px;
+  }
+  
+  .dropdown-menu {
+    min-width: 130px;
+  }
+  
+  .dropdown-item {
+    padding: 10px 12px;
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .options-btn {
+    display: flex; /* Always show on mobile for easier access */
+    width: 24px;
+    height: 24px;
+    font-size: 16px;
+    right: 4px;
+  }
+  
+  .dropdown-menu {
+    min-width: 120px;
+    left: 0;
+    transform: none;
+  }
+  
+  .dropdown-item {
+    padding: 8px 10px;
+    font-size: 11px;
+  }
+}
+
+/* Remove Contact Button (keeping for backward compatibility) */
 .remove-contact-btn {
   position: absolute;
   top: 50%;
@@ -1053,5 +1174,698 @@
     height: 22px;
     font-size: 14px;
     right: 4px;
+  }
+}
+/* Edit Profile Modal Styles */
+.change-photo-btn {
+  display: inline-block;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  cursor: pointer;
+  margin-top: 8px;
+  transition: transform 0.2s;
+}
+
+.change-photo-btn:hover {
+  transform: translateY(-1px);
+}
+
+.profile-edit-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.form-group label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #333;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.form-group input,
+.form-group textarea {
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 14px;
+  font-family: inherit;
+  resize: vertical;
+  transition: border-color 0.2s;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: #667eea;
+}
+
+.profile-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.cancel-btn,
+.save-btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 25px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.cancel-btn {
+  background: #f5f5f5;
+  color: #666;
+}
+
+.cancel-btn:hover:not(:disabled) {
+  background: #e0e0e0;
+}
+
+.save-btn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.save-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+}
+
+.save-btn:disabled,
+.cancel-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Mobile responsive for edit modal */
+@media (max-width: 480px) {
+  .profile-edit-form {
+    gap: 12px;
+  }
+  
+  .form-group input,
+  .form-group textarea {
+    padding: 8px;
+    font-size: 13px;
+  }
+  
+  .profile-actions {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .cancel-btn,
+  .save-btn {
+    padding: 8px 16px;
+    font-size: 13px;
+  }
+}
+/* Online Status in Chat List */
+.friend-avatar {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.friend-avatar img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #667eea;
+}
+
+.online-dot {
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  width: 12px;
+  height: 12px;
+  background: #4CAF50;
+  border: 2px solid #001030;
+  border-radius: 50%;
+  animation: pulse-online 2s infinite;
+}
+
+@keyframes pulse-online {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Update existing friends styles to work with new structure */
+.ls-list .friends {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.2s;
+  position: relative;
+}
+
+/* Mobile responsive for online dot */
+@media (max-width: 768px) {
+  .friend-avatar img {
+    width: 35px;
+    height: 35px;
+  }
+  
+  .online-dot {
+    width: 10px;
+    height: 10px;
+    bottom: 1px;
+    right: 1px;
+  }
+}
+
+@media (max-width: 480px) {
+  .friend-avatar img {
+    width: 30px;
+    height: 30px;
+  }
+  
+  .online-dot {
+    width: 8px;
+    height: 8px;
+    bottom: 0px;
+    right: 0px;
+  }
+}
+/* Online Status Badges in Chat List */
+.friend-name-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 2px;
+}
+
+.friend-name-status p {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+  flex: 1;
+}
+
+.online-badge {
+  background: linear-gradient(135deg, #4CAF50, #45a049);
+  color: white;
+  font-size: 8px;
+  font-weight: 500;
+  padding: 1px 4px;
+  border-radius: 8px;
+  text-transform: lowercase;
+  letter-spacing: 0.3px;
+  animation: pulse-badge 2s infinite;
+  box-shadow: 0 1px 3px rgba(76, 175, 80, 0.3);
+}
+
+.offline-badge {
+  background: #666;
+  color: #ccc;
+  font-size: 8px;
+  font-weight: 400;
+  padding: 1px 4px;
+  border-radius: 8px;
+  text-transform: lowercase;
+  letter-spacing: 0.3px;
+  opacity: 0.7;
+}
+
+@keyframes pulse-badge {
+  0% {
+    box-shadow: 0 2px 4px rgba(76, 175, 80, 0.3);
+  }
+  50% {
+    box-shadow: 0 2px 8px rgba(76, 175, 80, 0.6);
+  }
+  100% {
+    box-shadow: 0 2px 4px rgba(76, 175, 80, 0.3);
+  }
+}
+
+/* Responsive adjustments for badges */
+@media (max-width: 768px) {
+  .friend-name-status {
+    gap: 6px;
+  }
+  
+  .friend-name-status p {
+    font-size: 13px;
+  }
+  
+  .online-badge {
+    font-size: 7px;
+    padding: 1px 3px;
+  }
+  
+  .offline-badge {
+    font-size: 7px;
+    padding: 1px 3px;
+  }
+}
+
+@media (max-width: 480px) {
+  .friend-name-status {
+    gap: 4px;
+  }
+  
+  .friend-name-status p {
+    font-size: 12px;
+  }
+  
+  .online-badge {
+    font-size: 6px;
+    padding: 1px 2px;
+  }
+  
+  .offline-badge {
+    font-size: 6px;
+    padding: 1px 2px;
+  }
+}
+
+/* Ensure proper spacing in friends list */
+.ls-list .friends > div:last-child {
+  flex: 1;
+  min-width: 0;
+}
+
+.ls-list .friends > div:last-child span {
+  display: block;
+  font-size: 12px;
+  color: #aaa;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 120px;
+}
+/* Highlight online users in chat list */
+.friends.online-user {
+  border-left: 3px solid #4CAF50;
+  background: rgba(76, 175, 80, 0.05);
+}
+
+.friends.online-user:hover {
+  background: rgba(76, 175, 80, 0.1);
+}
+
+.friends.online-user .friend-avatar img {
+  border-color: #4CAF50;
+  box-shadow: 0 0 8px rgba(76, 175, 80, 0.3);
+}
+/* Username field styling */
+.username-hint {
+  font-size: 10px;
+  color: #666;
+  margin-top: 2px;
+  font-style: italic;
+}
+
+.form-group input:invalid {
+  border-color: #ff4757;
+}
+
+.form-group input:valid {
+  border-color: #4CAF50;
+}
+
+/* Username validation styling */
+.form-group input[type="text"]:focus {
+  box-shadow: 0 0 5px rgba(102, 126, 234, 0.3);
+}
+/* Search Mode Button */
+.search-mode-btn {
+  background: #667eea;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: bold;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+
+.search-mode-btn:hover {
+  background: #5a67d8;
+  transform: scale(1.1);
+}
+
+.search-mode-btn.active {
+  background: #4CAF50;
+  animation: pulse-search 2s infinite;
+}
+
+@keyframes pulse-search {
+  0% {
+    box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(76, 175, 80, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(76, 175, 80, 0);
+  }
+}
+
+/* Search Results */
+.search-results {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.no-results {
+  text-align: center;
+  padding: 20px;
+  color: #666;
+  font-style: italic;
+}
+
+.no-results p {
+  margin: 0;
+  font-size: 14px;
+}
+
+/* Add User Styling */
+.friends.add-user {
+  background: rgba(76, 175, 80, 0.1);
+  border: 1px dashed #4CAF50;
+  position: relative;
+}
+
+.friends.add-user:hover {
+  background: rgba(76, 175, 80, 0.2);
+}
+
+.add-icon {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: #4CAF50;
+  color: white;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+/* Update search input to accommodate button */
+.ls-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #fff;
+  padding: 10px 15px;
+  border-radius: 25px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  margin-top: 15px;
+}
+
+.ls-search input {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 14px;
+  width: auto;
+  color: #333;
+}
+
+/* Mobile responsive for search */
+@media (max-width: 480px) {
+  .search-mode-btn {
+    width: 24px;
+    height: 24px;
+    font-size: 14px;
+  }
+  
+  .ls-search {
+    padding: 8px 12px;
+    gap: 6px;
+  }
+  
+  .add-icon {
+    width: 18px;
+    height: 18px;
+    font-size: 12px;
+    right: 8px;
+  }
+}
+/* Search Mode Button */
+.search-mode-btn {
+  background: #667eea;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: bold;
+  transition: all 0.2s;
+  flex-shrink: 0;
+  margin-right: 2px;
+  /* Edge compatibility fixes */
+  -ms-flex-negative: 0;
+  -webkit-flex-shrink: 0;
+  box-sizing: border-box;
+  line-height: 1;
+}
+
+/* Settings Modal Styles */
+.settings-modal {
+  max-width: 450px;
+  max-height: 85vh;
+}
+
+.settings-section {
+  margin-bottom: 25px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.settings-section:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+}
+
+.settings-section h4 {
+  margin: 0 0 15px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+}
+
+.setting-item {
+  margin-bottom: 12px;
+}
+
+.setting-item label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #333;
+}
+
+.setting-item input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  accent-color: #667eea;
+}
+
+.setting-item span {
+  flex: 1;
+}
+
+.settings-btn {
+  width: 100%;
+  padding: 10px 15px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: #f8f9fa;
+  color: #333;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.settings-btn:hover {
+  background: #e9ecef;
+  border-color: #ccc;
+}
+
+.settings-btn.danger {
+  background: #ffe6e6;
+  border-color: #ffcdd2;
+  color: #d32f2f;
+}
+
+.settings-btn.danger:hover {
+  background: #ffcdd2;
+  border-color: #f8bbd9;
+}
+
+/* Mobile responsive for settings */
+@media (max-width: 480px) {
+  .settings-modal {
+    width: calc(100vw - 10px);
+    max-height: calc(100vh - 10px);
+  }
+  
+  .settings-section h4 {
+    font-size: 15px;
+  }
+  
+  .setting-item label {
+    font-size: 13px;
+  }
+  
+  .setting-item input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+  }
+  
+  .settings-btn {
+    padding: 8px 12px;
+    font-size: 13px;
+  }
+}
+
+.search-mode-btn:hover {
+  background: #5a6fd8;
+  transform: scale(1.1);
+}
+
+.search-mode-btn.active {
+  background: #4CAF50;
+  animation: pulse-search 2s infinite;
+}
+
+@keyframes pulse-search {
+  0% {
+    box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(76, 175, 80, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(76, 175, 80, 0);
+  }
+}
+
+/* Update search container to accommodate button */
+.ls-search {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #fff;
+  padding: 8px 10px 8px 12px;
+  border-radius: 25px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  margin-top: 15px;
+  min-height: 40px; /* Ensure consistent height across browsers */
+  box-sizing: border-box;
+}
+
+.ls-search input {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 14px;
+  width: auto;
+  color: #333;
+  padding-right: 4px;
+  min-width: 0; /* Prevent flex item from overflowing */
+  background: transparent;
+}
+
+/* Mobile responsive for search button */
+@media (max-width: 480px) {
+  .search-mode-btn {
+    width: 26px;
+    height: 26px;
+    font-size: 12px;
+  }
+  
+  .ls-search {
+    padding: 6px 10px;
+    gap: 6px;
+  }
+}
+
+/* Edge Browser Compatibility Fixes */
+@supports (-ms-ime-align: auto) {
+  .ls-search {
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-align: center;
+    align-items: center;
+  }
+  
+  .ls-search input {
+    -ms-flex: 1;
+    flex: 1;
+  }
+  
+  .search-mode-btn {
+    -ms-flex-negative: 0;
+    flex-shrink: 0;
+  }
+}
+
+/* Internet Explorer 11 Compatibility */
+@media screen and (-ms-high-contrast: active), (-ms-high-contrast: none) {
+  .ls-search {
+    display: -ms-flexbox;
+    display: flex;
+  }
+  
+  .ls-search input {
+    -ms-flex: 1 1 auto;
+    flex: 1 1 auto;
+    width: 1%;
   }
 }
