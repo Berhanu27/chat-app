@@ -1,4 +1,4 @@
-import { doc, getDoc, onSnapshot, updateDoc } from "firebase/firestore";
+import { doc, getDoc, onSnapshot, updateDoc, setDoc } from "firebase/firestore";
 import { createContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { auth, db } from "../config/Firebase";
@@ -32,7 +32,26 @@ const AppContextProvider = (props) => {
             const userSnap=await getDoc(userRef);
             
             if (!userSnap.exists()) {
-                console.error("User document does not exist");
+                console.log("User document does not exist, creating basic document...");
+                // Create a basic user document if it doesn't exist
+                const user = auth.currentUser;
+                await setDoc(userRef, {
+                    id: uid,
+                    username: user?.email?.split('@')[0] || 'user',
+                    email: user?.email || '',
+                    name: "",
+                    avatar: "",
+                    bio: "Hey there i am using chat app",
+                    lastSeen: Date.now(),
+                    createdAt: Date.now()
+                });
+                
+                // Also create chats document
+                const chatsRef = doc(db, "chats", uid);
+                await setDoc(chatsRef, {
+                    chatData: []
+                });
+                
                 navigate("/profile");
                 setIsLoading(false);
                 return;

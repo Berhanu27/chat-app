@@ -2,7 +2,7 @@ import { useContext, useEffect, useState } from 'react'
 import './ProfileUpdate.css'
 import assets from '../../assets/assets'
 import upload from '../../lib/upload'
-import { doc, getDoc, updateDoc } from 'firebase/firestore'
+import { doc, getDoc, updateDoc, setDoc } from 'firebase/firestore'
 import { auth, db } from '../../config/Firebase'
 import { AppContext } from '../../context/AppContext'
 import { useNavigate } from 'react-router-dom'
@@ -46,24 +46,32 @@ const ProfileUpdate = () => {
 
       const docRef = doc(db, 'users', uid);
       
+      // Check if document exists
+      const docSnap = await getDoc(docRef);
+      
       if (image) {
         // Upload new image
         const uploadResult = await upload(image);
         const imageUrl = uploadResult?.url || uploadResult;
         
-        await updateDoc(docRef, {
+        // Use setDoc with merge to create or update
+        await setDoc(docRef, {
           avatar: imageUrl,
           bio: bio,
-          name: name
-        });
+          name: name,
+          id: uid,
+          lastSeen: Date.now()
+        }, { merge: true });
         
         setPrevImage(imageUrl);
       } else {
         // Update without new image
-        await updateDoc(docRef, {
+        await setDoc(docRef, {
           bio: bio,
-          name: name
-        });
+          name: name,
+          id: uid,
+          lastSeen: Date.now()
+        }, { merge: true });
       }
       
       // Refresh user data
