@@ -30,16 +30,36 @@ const AppContextProvider = (props) => {
         try {
             const userRef=doc(db,"users",uid);
             const userSnap=await getDoc(userRef);
+            
+            if (!userSnap.exists()) {
+                console.error("User document does not exist");
+                navigate("/profile");
+                setIsLoading(false);
+                return;
+            }
+            
             const userData=userSnap.data();
+            
+            if (!userData) {
+                console.error("User data is undefined");
+                navigate("/profile");
+                setIsLoading(false);
+                return;
+            }
+            
             setUserData(userData);
+            
+            // Check if user has completed profile setup
             if(userData.avatar && userData.name){
                 navigate("/chat");
-            
-            }else{ navigate("/profile");}
+            } else { 
+                navigate("/profile");
+            }
 
             await updateDoc(userRef, {
                lastSeen:Date.now()
             });
+            
             setInterval(async () => {
                 if (auth.currentUser) {
                     await updateDoc(userRef, {
@@ -49,6 +69,8 @@ const AppContextProvider = (props) => {
             }, 60000);
         } catch (error) {
             console.error("Error loading user data:", error);
+            // Navigate to profile if there's an error
+            navigate("/profile");
         } finally {
             setIsLoading(false);
         }
