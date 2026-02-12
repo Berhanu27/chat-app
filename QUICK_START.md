@@ -79,11 +79,27 @@ Only group admins can:
 5. Connect repository: `Berhanu27/chat-app`
 6. Build Command: `npm run build`
 7. Publish Directory: `dist`
-8. Click "Create Static Site"
-9. Wait 2-5 minutes for deployment
-10. Your app is live! 🎉
+8. **⚠️ CRITICAL**: Add environment variables (see below)
+9. Click "Create Static Site"
+10. Wait 2-5 minutes for deployment
+11. Your app is live! 🎉
 
-**Detailed instructions**: See `DEPLOYMENT_GUIDE.md`
+### ⚠️ Environment Variables (REQUIRED)
+
+**You MUST add these in Render dashboard or you'll get Firebase errors:**
+
+Go to "Environment" tab and add:
+```
+VITE_FIREBASE_API_KEY=AIzaSyAZt04SDexf_o1HvlpvEJ5bC2lqtQPnubs
+VITE_FIREBASE_AUTH_DOMAIN=chat-app-8062e.firebaseapp.com
+VITE_FIREBASE_PROJECT_ID=chat-app-8062e
+VITE_FIREBASE_STORAGE_BUCKET=chat-app-8062e.appspot.com
+VITE_FIREBASE_MESSAGING_SENDER_ID=1053821046224
+VITE_FIREBASE_APP_ID=1:1053821046224:web:b8389e12e1cbcc82e27dd5
+VITE_CLOUDINARY_CLOUD_NAME=dlruksedk
+```
+
+**Detailed instructions**: See `RENDER_ENV_SETUP.md`
 
 ---
 

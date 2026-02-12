@@ -78,11 +78,27 @@ Build Command: npm run build
 Publish Directory: dist
 ```
 
-#### 5. Environment Variables (if needed)
-If you have any environment variables in `.env`, add them in Render:
+#### 5. Environment Variables ⚠️ REQUIRED
+You MUST add these environment variables from your `.env` file:
+
+**In Render Dashboard:**
 - Go to "Environment" tab
-- Add each variable from your `.env` file
+- Click "Add Environment Variable"
+- Add each of these (copy from your `.env` file):
+
+```
+VITE_FIREBASE_API_KEY=AIzaSyAZt04SDexf_o1HvlpvEJ5bC2lqtQPnubs
+VITE_FIREBASE_AUTH_DOMAIN=chat-app-8062e.firebaseapp.com
+VITE_FIREBASE_PROJECT_ID=chat-app-8062e
+VITE_FIREBASE_STORAGE_BUCKET=chat-app-8062e.appspot.com
+VITE_FIREBASE_MESSAGING_SENDER_ID=1053821046224
+VITE_FIREBASE_APP_ID=1:1053821046224:web:b8389e12e1cbcc82e27dd5
+VITE_CLOUDINARY_CLOUD_NAME=dlruksedk
+```
+
 - Click "Save Changes"
+
+**IMPORTANT**: Without these variables, you'll get "Firebase: Error (auth/invalid-api-key)" error!
 
 #### 6. Deploy
 - Click "Create Static Site"
