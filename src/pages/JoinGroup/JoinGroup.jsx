@@ -93,7 +93,6 @@ const JoinGroup = () => {
     const joinGroup = async () => {
         console.log('Join group function called');
         console.log('User data:', userData);
-        console.log('Invite data:', inviteData);
         console.log('Group data:', groupData);
         
         if (!userData) {
@@ -103,9 +102,9 @@ const JoinGroup = () => {
             return;
         }
 
-        if (!inviteData || !groupData) {
-            console.log('Missing invite or group data');
-            toast.error('Invalid invite data');
+        if (!groupData) {
+            console.log('Missing group data');
+            toast.error('Invalid group data');
             return;
         }
 
@@ -132,6 +131,11 @@ const JoinGroup = () => {
             
             console.log('Updated group data:', updatedGroupData);
 
+            // Update group in 'groups' collection
+            const groupRef = doc(db, 'groups', inviteCode);
+            await setDoc(groupRef, updatedGroupData, { merge: true });
+            console.log('Updated group in groups collection');
+
             // Add group to new member's chat list
             console.log('Adding group to user chat list...');
             const userChatsRef = doc(db, 'chats', userData.id);
@@ -142,9 +146,9 @@ const JoinGroup = () => {
                 console.log('User chat data:', userChatData);
                 
                 const newGroupChat = {
-                    messagesId: inviteData.groupId,
+                    messagesId: inviteCode,
                     lastMessage: `${userData.name} joined the group`,
-                    rId: inviteData.groupId,
+                    rId: inviteCode,
                     updateAt: Date.now(),
                     updatedAt: Date.now(),
                     messageSeen: false,
@@ -161,9 +165,9 @@ const JoinGroup = () => {
                 console.log('User chat document does not exist, creating...');
                 await setDoc(userChatsRef, {
                     chatData: [{
-                        messagesId: inviteData.groupId,
+                        messagesId: inviteCode,
                         lastMessage: `${userData.name} joined the group`,
-                        rId: inviteData.groupId,
+                        rId: inviteCode,
                         updateAt: Date.now(),
                         updatedAt: Date.now(),
                         messageSeen: false,
@@ -183,7 +187,7 @@ const JoinGroup = () => {
                 if (memberChatsSnapshot.exists()) {
                     const memberChatData = memberChatsSnapshot.data();
                     const updatedChatData = memberChatData.chatData.map(chat => {
-                        if (chat.messagesId === inviteData.groupId) {
+                        if (chat.messagesId === inviteCode) {
                             return {
                                 ...chat,
                                 groupData: updatedGroupData,
@@ -202,7 +206,7 @@ const JoinGroup = () => {
 
             // Add system message to group chat
             console.log('Adding system message...');
-            const messagesRef = doc(db, 'messages', inviteData.groupId);
+            const messagesRef = doc(db, 'messages', inviteCode);
             const messagesSnapshot = await getDoc(messagesRef);
             
             if (messagesSnapshot.exists()) {

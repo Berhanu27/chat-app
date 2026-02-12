@@ -548,6 +548,11 @@ const LeftSidebar = () => {
                 lastMessageTime: Date.now()
             };
 
+            // Store group in 'groups' collection for invite link functionality
+            const groupRef = doc(db, 'groups', messagesRef.id);
+            await setDoc(groupRef, groupData);
+            console.log('Group stored in groups collection:', messagesRef.id);
+
             // Add group to all members' chat lists
             const allMembers = [userData.id, ...selectedMembers.map(member => member.rId)];
             
@@ -700,6 +705,11 @@ const LeftSidebar = () => {
                 updatedBy: userData.id
             };
 
+            // Update group in 'groups' collection for invite link functionality
+            const groupRef = doc(db, 'groups', currentGroup.messagesId);
+            await setDoc(groupRef, updatedGroupData, { merge: true });
+            console.log('Group members updated in groups collection:', currentGroup.messagesId);
+
             // Add group to new members' chat lists
             for (const newMemberId of newMemberIds) {
                 const userChatsRef = doc(db, 'chats', newMemberId);
@@ -813,6 +823,11 @@ const LeftSidebar = () => {
                 updatedAt: Date.now(),
                 updatedBy: userData.id
             };
+
+            // Update group in 'groups' collection for invite link functionality
+            const groupRef = doc(db, 'groups', currentGroup.messagesId);
+            await setDoc(groupRef, updatedGroupData, { merge: true });
+            console.log('Group updated in groups collection:', currentGroup.messagesId);
 
             for (const memberId of allMembers) {
                 const userChatsRef = doc(db, 'chats', memberId);
@@ -995,6 +1010,11 @@ const LeftSidebar = () => {
                 updatedBy: userData.id
             };
 
+            // Update group in 'groups' collection for invite link functionality
+            const groupRef = doc(db, 'groups', currentGroup.messagesId);
+            await setDoc(groupRef, updatedGroupData, { merge: true });
+            console.log('Group admins updated in groups collection:', currentGroup.messagesId);
+
             // Update group data for all members
             const allMembers = currentGroup.groupData?.members || [];
             for (const member of allMembers) {
@@ -1058,6 +1078,11 @@ const LeftSidebar = () => {
                 updatedAt: Date.now(),
                 updatedBy: userData.id
             };
+
+            // Update group in 'groups' collection for invite link functionality
+            const groupRef = doc(db, 'groups', currentGroup.messagesId);
+            await setDoc(groupRef, updatedGroupData, { merge: true });
+            console.log('Group admins updated in groups collection:', currentGroup.messagesId);
 
             // Update group data for all members
             const allMembers = currentGroup.groupData?.members || [];
@@ -1126,6 +1151,11 @@ const LeftSidebar = () => {
                     updatedAt: Date.now(),
                     updatedBy: userData.id
                 };
+
+                // Update group in 'groups' collection for invite link functionality
+                const groupRef = doc(db, 'groups', currentGroup.messagesId);
+                await setDoc(groupRef, updatedGroupData, { merge: true });
+                console.log('Group members updated in groups collection:', currentGroup.messagesId);
 
                 // Remove group from removed member's chat list
                 const userChatsRef = doc(db, 'chats', memberId);
